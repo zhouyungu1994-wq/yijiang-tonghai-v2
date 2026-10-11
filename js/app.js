@@ -1,4 +1,4 @@
-import {smooth,lerp,cargoPose} from './motion.js';
+import {smooth,lerp,cargoPose,portPose} from './motion.js?v=20261011-4';
 const A='assets/';
 const SOURCES={
  river:{label:'浙江省交通运输厅｜温州—丽水海河联运启航（2024）',url:'https://jtyst.zj.gov.cn/art/2024/12/27/art_1229304975_59039943.html'},
@@ -20,7 +20,7 @@ const SCENES=[
   {x:66,y:43,label:'城与港',icon:'城',title:'朔门古港位于古城北侧',text:'朔门古港遗址的城门、瓮城、江岸及码头遗迹，为观察温州港区与城市北部空间关系提供了考古材料。',sources:[SOURCES.port,SOURCES.city]},
   {x:48,y:58,label:'港口管理',icon:'贸',title:'南宋温州设市舶务',text:'地方志记载，南宋绍兴二年（1132）温州设置市舶务，管理对外贸易。',sources:[SOURCES.book]}
  ]},
- {title:'港口集舟',lead:'船舶停靠江岸，货物经由码头装载。',action:'开始装卸',card:{title:'宋代船舶与朔门港的装载线索',text:'朔门港遗址发现宋代沉船及码头遗存。二号沉船现存船体残长约15.9米、宽约4.26米；整船约20米长、约6米宽属于研究推估。船体舱壁和分舱结构，为认识宋代木船建造与港口运输提供了实物线索。',note:'残存尺寸与复原推估分别标示；长卷中的船只不是沉船的精确复原。',sources:[SOURCES.port,SOURCES.book,SOURCES.wreck]},hotspots:[
+ {title:'朔门集舟',lead:'船舶停靠江岸，货物经由码头装载。',action:'开始装卸',card:{title:'宋代船舶与朔门港的装载线索',text:'朔门港遗址发现宋代沉船及码头遗存。二号沉船现存船体残长约15.9米、宽约4.26米；整船约20米长、约6米宽属于研究推估。船体舱壁和分舱结构，为认识宋代木船建造与港口运输提供了实物线索。',note:'残存尺寸与复原推估分别标示；长卷中的船只不是沉船的精确复原。',sources:[SOURCES.port,SOURCES.book,SOURCES.wreck]},hotspots:[
   {x:47,y:54,label:'沉船船体',icon:'舟',title:'船体、船艏与分舱',text:'研究资料据现存船体推估二号沉船原长约20米、宽约6米，并记录了约七个隔舱等结构。尖艏、船体线形、排水孔和舱壁共同反映船的形制与建造方式；尺寸推估应与现存残长约15.9米区分。',sources:[SOURCES.book,SOURCES.wreck]},
   {x:72,y:74,label:'码头设施',icon:'港',title:'码头见证停泊与装卸',text:'朔门古港考古发现宋代码头及江岸设施。木桩、铺板和岸线结构等材料，为研究船只停靠和港口建设提供线索。',sources:[SOURCES.port,SOURCES.book]}
  ]},
@@ -141,20 +141,23 @@ function drawActors(now){
    restoreForegroundTree(ctx);
   }
  }
- if(i===2){const elapsed=moving?(now-state.action.start)/1000:0;
-  const workers=[{x:175,y:389,dx:23,dy:-5},{x:307,y:405,dx:42,dy:-7},{x:361,y:402,dx:32,dy:-3},{x:502,y:405,dx:37,dy:-8},{x:553,y:411,dx:30,dy:-5}];
-  const trip=p<.5?smooth(p*2):smooth((1-p)*2);
-  workers.forEach((worker,n)=>{
-   const x=worker.x+(moving?worker.dx*trip:0),y=worker.y+(moving?worker.dy*trip:0);
-   const frame=moving?Math.floor(elapsed*3+n)%4:0;
-   drawAtlas(ctx,'loaders',frame,n%2,4,2,x,y,n===0?27:31,n===0?36:41);
-  });
+ if(i===2&&moving){
+  const elapsed=(now-state.action.start)/1000;
+  const porters=[0,1,2,3].map(j=>({...portPose(p,j),j})).sort((a,b)=>a.y-b.y);
+  for(const a of porters){
+   if(a.alpha<=0)continue;
+   const frame=a.picking?Math.floor(elapsed*2+a.j)%4:Math.floor(elapsed*4+a.j)%4;
+   drawAtlas(ctx,'loaders',frame,a.returning?1:0,4,2,a.x,a.y,27,36,a.alpha,a.returning?a.dx>0:a.dx<0);
+  }
  }
  if(i===3){drawBoat(ctx,'boat4',lerp(604,422,smooth(p)),525+bob,185,83,1,moving);drawBoat(ctx,'small',lerp(822,905,smooth(p)),399,95,39,1,moving);}
  if(i===4){
   const fade=1-smooth((p-.6)/.4);
-  ctx.save();ctx.globalAlpha*=1-smooth((p-.35)/.6);
-  ctx.drawImage(images.distantBoat,687+27*p,194-7*p,113-20*p,88-15*p);ctx.restore();
+  ctx.save();
+  ctx.globalAlpha*=.72*(1-smooth((p-.1)/.88));
+  ctx.filter='grayscale(.66) saturate(.48) brightness(.73)';
+  ctx.drawImage(images.distantBoat,687+100*p,194-46*p,113-64*p,88-49*p);
+  ctx.restore();
   drawBoat(ctx,'boat5',lerp(300,730,p),476-180*p,lerp(375,60,p),lerp(230,38,p),fade,moving);
  }
  ctx.restore();
