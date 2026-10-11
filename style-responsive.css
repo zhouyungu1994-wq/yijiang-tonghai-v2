@@ -1,5 +1,15 @@
-.visual-area{height:min(56.25vw,calc(100svh - 265px));min-height:280px;aspect-ratio:auto;max-height:none}
+/* Full-width 1920 × 1080 composition, scaled proportionally on smaller screens. */
+.visual-area{width:min(100%,1920px);height:auto;aspect-ratio:16/9;min-height:0;max-height:none;margin:0 auto}
+.stage{inset:0;width:100%;height:100%;aspect-ratio:16/9;max-height:none;transform:none}
 .intro{background-image:linear-gradient(#0d2529a8,#0d2529d9),url('assets/backgrounds/01-净底图.png')}
-.stage{width:min(100vw,177.7vh,calc((100svh - 265px)*1.776));max-height:100%}
-@media(max-width:850px){.visual-area{height:min(56.25vw,calc(100svh - 360px));min-height:240px}.stage{width:min(100vw,177.7vh,calc(240px*1.776));max-height:none}}
-@media(max-width:430px){.visual-area{height:240px;min-height:240px}.stage{width:calc(240px*1.776)}}
+.intro-overline{margin-top:0}
+.hotspot-layer{animation:hotspots-in .7s ease both}
+.hotspot{font-size:clamp(11px,1vw,17px);padding:8px 13px}
+.hotspot-icon{width:1.65em;height:1.65em;font-size:.85em}
+.transitioning .scene-count,.transitioning .scene-caption{visibility:hidden}
+.topbar{height:70px}
+.control-area{padding:18px clamp(20px,4vw,76px);gap:20px}
+.chapter-copy h1{font-size:clamp(24px,2.1vw,36px);margin:7px 0}
+@keyframes hotspots-in{from{opacity:0}to{opacity:1}}
+@media(max-width:850px){.topbar{height:auto}.visual-area{width:100%;height:auto;min-height:0;aspect-ratio:16/9}.stage{width:100%;height:100%}.hotspot{padding:4px 6px;font-size:10px}.hotspot-icon{display:none}.scene-count{right:10px;top:10px;font-size:10px}.scene-caption{left:10px;bottom:8px;font-size:10px}.control-area{padding:16px 20px}}
+@media(prefers-reduced-motion:reduce){.hotspot-layer{animation:none}}

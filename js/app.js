@@ -1,7 +1,4 @@
-let WaterScene = null;
-try { ({ WaterScene } = await import('./water-scene.js')); }
-catch (error) { console.warn('Three.js 未加载，继续使用静态水面：', error); }
-
+import {smooth,lerp,cargoPose} from './motion.js';
 const A='assets/';
 const SOURCES={
  river:{label:'浙江省交通运输厅｜温州—丽水海河联运启航（2024）',url:'https://jtyst.zj.gov.cn/art/2024/12/27/art_1229304975_59039943.html'},
@@ -27,7 +24,7 @@ const SCENES=[
   {x:47,y:54,label:'沉船船体',icon:'舟',title:'船体、船艏与分舱',text:'研究资料据现存船体推估二号沉船原长约20米、宽约6米，并记录了约七个隔舱等结构。尖艏、船体线形、排水孔和舱壁共同反映船的形制与建造方式；尺寸推估应与现存残长约15.9米区分。',sources:[SOURCES.book,SOURCES.wreck]},
   {x:72,y:74,label:'码头设施',icon:'港',title:'码头见证停泊与装卸',text:'朔门古港考古发现宋代码头及江岸设施。木桩、铺板和岸线结构等材料，为研究船只停靠和港口建设提供线索。',sources:[SOURCES.port,SOURCES.book]}
  ]},
- {title:'双塔引航',lead:'船行开阔江面，江心屿双塔渐渐显现。',action:'扬帆前行',card:{title:'江心屿双塔：江面上的方向标志',text:'江心屿位于瓯江之中，东西双塔是温州历史地标。地方资料记载，往来船只曾以双塔辨认温州方向。双塔为砖塔建筑，成为江面与城市之间醒目的视觉参照。',note:'“引航”指地标帮助辨认方位，不代表现代灯塔设备或主动导航。',sources:[SOURCES.towers,SOURCES.book]},hotspots:[
+ {title:'双塔引航',lead:'船行开阔江面，江心屿双塔渐渐显现。',action:'扬帆起航',card:{title:'江心屿双塔：江面上的方向标志',text:'江心屿位于瓯江之中，东西双塔是温州历史地标。地方资料记载，往来船只曾以双塔辨认温州方向。双塔为砖塔建筑，成为江面与城市之间醒目的视觉参照。',note:'“引航”指地标帮助辨认方位，不代表现代灯塔设备或主动导航。',sources:[SOURCES.towers,SOURCES.book]},hotspots:[
   {x:31,y:43,label:'东西双塔',icon:'塔',title:'江心屿的两座砖塔',text:'江心屿双塔隔江相望，是温州城市景观的重要历史地标。地方文献记载了双塔形制与高度。',sources:[SOURCES.towers,SOURCES.book]},
   {x:56,y:64,label:'辨认方向',icon:'航',title:'远望岛屿与塔影',text:'从江面观察岛岸和塔影，可以理解江心屿在航道、温州古城与瓯江空间中的位置。',sources:[SOURCES.towers]}
  ]},
@@ -38,71 +35,130 @@ const SCENES=[
 ];
 const byId=id=>document.getElementById(id);
 const ui={stage:byId('stage'),nav:byId('chapterNav'),bgs:byId('backgrounds'),actors:byId('actorsCanvas'),count:byId('sceneCount'),eyebrow:byId('chapterEyebrow'),title:byId('chapterTitle'),lead:byId('chapterLead'),status:byId('actionStatus'),primary:byId('primaryButton'),prev:byId('previousButton'),next:byId('nextButton'),skip:byId('skipButton'),replay:byId('replayButton'),knowledge:byId('knowledgeButton'),modal:byId('modalBackdrop'),modalClose:byId('modalClose'),modalArt:byId('modalArt'),modalKicker:byId('modalKicker'),modalTitle:byId('modalTitle'),modalText:byId('modalText'),modalNote:byId('modalNote'),sources:byId('modalSources'),intro:byId('intro'),start:byId('startButton'),sound:byId('soundButton'),soundLabel:byId('soundLabel'),ending:byId('ending')};
-const state={current:0,unlocked:0,phase:[0,0,0,0,0],completed:[false,false,false,false,false],started:false,sound:false,action:null,transition:null,lastFocus:null,sceneStart:performance.now()};
-const reduced=matchMedia('(prefers-reduced-motion: reduce)');
-const water=WaterScene?new WaterScene(ui.stage,e=>console.warn('Three.js 水面未启用，底图和其他交互仍可使用。',e)):{update(){}};
+
+const state={current:0,unlocked:0,phase:[0,0,0,0,0],completed:[false,false,false,false,false],travel:[0,0,0,0,0],started:false,ready:false,sound:false,action:null,transition:null,lastFocus:null,sceneStart:performance.now()};
+let water={update(){}};
 const images={};
-const assets={
- boat1:'ships/01-向右货舟.png',boat2:'ships/02-靠岸货船.png',boat4:'ships/04-行航帆船.png',boat5:'ships/05-远行海船.png',small:'ships/04-小舟.png',wake:'sprites/船行水纹.png',
- walkers:'sprites/02-行人-4列2行.png',loaders:'sprites/03-装卸-4列2行.png',cart:'sprites/02-推车-2列2行.png',props:'sprites/装卸道具-2列2行.png'
-};
-for(let i=1;i<=5;i++){assets['bg'+i]=`backgrounds/0${i}-净底图.png`;}
+const assets={boat1:'ships/01-向右货舟.png',boat2:'ships/02-靠岸货船.png',boat4:'ships/04-行航帆船.png',boat5:'ships/05-远行海船.png',small:'ships/04-小舟.png',wake:'sprites/船行水纹.png',workers:'sprites/02-空手与搬货-4列2行.png',loaders:'sprites/03-装卸-4列2行.png'};
+for(let i=1;i<=5;i++)assets['bg'+i]=`backgrounds/0${i}-净底图.png`;
 function loadImage(key,path){return new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>{images[key]=im;resolve();};im.onerror=()=>reject(new Error(path));im.src=A+path;});}
 const loading=Promise.all(Object.entries(assets).map(([k,p])=>loadImage(k,p)));
-
 function setup(){
  ui.bgs.innerHTML=Array.from({length:5},(_,i)=>`<img class="bg${i===0?' active':''}" data-bg="${i}" src="${A+assets['bg'+(i+1)]}" alt="第${i+1}幕：${SCENES[i].title}">`).join('');
- ui.nav.innerHTML=SCENES.map((s,i)=>`<button class="chapter-link${i===0?' active visited':''}" data-chapter="${i}" type="button"><i class="chapter-dot" aria-hidden="true"></i>${s.title}</button>`).join('');
+ ui.nav.innerHTML=SCENES.map((s,i)=>`<button class="chapter-link" data-chapter="${i}" type="button"><i class="chapter-dot" aria-hidden="true"></i>${s.title}</button>`).join('');
  ui.nav.addEventListener('click',e=>{const b=e.target.closest('[data-chapter]');if(b)navigate(+b.dataset.chapter);});
+ const layer=document.createElement('div');layer.className='hotspot-layer';layer.hidden=true;ui.stage.append(layer);
+ ui.start.disabled=true;ui.start.textContent='画卷载入中…';
 }
-function hotspots(){let layer=ui.stage.querySelector('.hotspot-layer');if(!layer){layer=document.createElement('div');layer.className='hotspot-layer';ui.stage.append(layer);}layer.innerHTML=SCENES[state.current].hotspots.map((h,i)=>`<button class="hotspot" type="button" data-hot="${i}" style="left:${h.x}%;top:${h.y}%"><span class="hotspot-icon">${h.icon}</span>${h.label}</button>`).join('');layer.querySelectorAll('[data-hot]').forEach(b=>b.onclick=()=>openCard(SCENES[state.current].hotspots[+b.dataset.hot]));}
- function updateUI(){const i=state.current,s=SCENES[i];ui.count.textContent=`${String(i+1).padStart(2,'0')} / 05`;ui.eyebrow.textContent=`第${['一','二','三','四','五'][i]}幕 · ${s.title}`;ui.title.textContent=s.title;ui.lead.textContent=s.lead;
- const busy=!!state.action,done=state.completed[i];ui.status.textContent=busy?state.action.label:(done?i===4?'旅程已抵达江海之间':'本幕已完成，可以继续前行':s.action);
- ui.primary.textContent=state.phase[i]===1&&i===1?'继续货物入城':s.action;ui.primary.hidden=done&&i<4;ui.primary.disabled=busy||!state.started;ui.prev.disabled=i===0||busy;ui.next.hidden=!done||i===4;ui.next.textContent=i<4?`进入${SCENES[i+1].title}`:'下一幕';ui.skip.hidden=!busy;ui.replay.disabled=busy;
+function hotspots(){
+ const layer=ui.stage.querySelector('.hotspot-layer');
+ layer.hidden=!state.started||!state.ready||!!state.transition||(state.current===4&&state.completed[4]);
+ if(layer.dataset.scene!==String(state.current)){
+  layer.dataset.scene=state.current;
+  layer.innerHTML=SCENES[state.current].hotspots.map((h,i)=>`<button class="hotspot" type="button" data-hot="${i}" style="left:${h.x}%;top:${h.y}%"><span class="hotspot-icon">${h.icon}</span>${h.label}</button>`).join('');
+  layer.querySelectorAll('[data-hot]').forEach(b=>b.onclick=()=>openCard(SCENES[state.current].hotspots[+b.dataset.hot]));
+ }
+}
+function updateUI(){
+ const i=state.current,s=SCENES[i],busy=!!state.action||!!state.transition,done=state.completed[i];
+ ui.count.textContent=`${String(i+1).padStart(2,'0')} / 05`;
+ ui.eyebrow.textContent=`第${['一','二','三','四','五'][i]}幕 · ${s.title}`;ui.title.textContent=s.title;ui.lead.textContent=s.lead;
+ const action=i===1&&state.phase[i]===1?'搬运货物':s.action;
+ ui.status.textContent=state.transition?'画卷徐徐展开…':state.action?state.action.label:done?(i===4?'旅程已抵达江海之间':'本幕已完成，可以继续前行'):i===1&&state.phase[i]===1?'两艘船已靠岸，点击搬运货物':action;
+ ui.primary.textContent=action;ui.primary.hidden=done;ui.primary.disabled=busy||!state.started||!state.ready;
+ ui.prev.disabled=i===0||busy;ui.next.hidden=!done||i===4;ui.next.disabled=busy;ui.next.textContent=i<4?`进入${SCENES[i+1].title}`:'下一幕';ui.skip.hidden=!state.action;ui.replay.disabled=busy;ui.knowledge.disabled=!!state.transition||!state.ready;
  [...ui.nav.children].forEach((b,n)=>{b.disabled=n>state.unlocked||busy;b.classList.toggle('active',i===n);b.classList.toggle('visited',n<=state.unlocked);});
- [...ui.bgs.children].forEach((b,n)=>{b.classList.toggle('active',n===i);b.classList.toggle('fading',state.transition&&n===state.transition.from);});hotspots();
+ ui.stage.classList.toggle('transitioning',!!state.transition);hotspots();
+}
+function progress(now){return state.action?Math.max(0,Math.min(1,(now-state.action.start)/state.action.duration)):state.travel[state.current];}
+function complete(){const i=state.current;state.travel[i]=1;state.completed[i]=true;if(i<4)state.unlocked=Math.max(state.unlocked,i+1);state.action=null;updateUI();if(i===4){ui.ending.hidden=false;requestAnimationFrame(()=>ui.ending.classList.add('visible'));}}
+function runAction(label,duration,callback){if(state.action||state.transition)return;state.action={label,duration,start:performance.now(),callback};updateUI();}
+function finishAction(){if(!state.action)return;const fn=state.action.callback;state.travel[state.current]=1;state.action=null;fn();}
+function perform(){
+ if(!state.started||!state.ready||state.action||state.transition||!ui.modal.hidden||state.completed[state.current])return;
+ const i=state.current;
+ if(i===0)runAction('小舟向右启程…',8500,()=>{complete();navigate(1);});
+ else if(i===1){
+  if(state.phase[i]===0){citySound();runAction('两艘船缓缓靠岸…',10000,()=>{state.phase[i]=1;state.travel[i]=0;updateUI();});}
+  else{state.phase[i]=2;runAction('空手前往码头，取货后沿原路返回…',26000,complete);}
+ }else if(i===2){playCue('rope',.13);runAction('搬运、装载与系缆…',9000,complete);}
+ else if(i===3)runAction('扬帆驶过双塔…',11000,complete);
+ else runAction('船帆渐远，驶向江海…',20000,complete);
+}
+function navigate(i){
+ if(state.action||state.transition||i<0||i>state.unlocked||i>4||i===state.current)return;
+ closeCard();const snapshot=document.createElement('canvas');snapshot.width=ui.actors.width;snapshot.height=ui.actors.height;snapshot.getContext('2d').drawImage(ui.actors,0,0);
+ const old=state.current;state.current=i;state.sceneStart=performance.now();state.transition={from:old,start:performance.now(),duration:3200,snapshot};
+ cityTimers.forEach(clearTimeout);cityTimers=[];['port','vendor','wedding'].forEach(k=>cues[k].pause());
+ ui.ending.classList.remove('visible');ui.ending.hidden=true;updateUI();
+}
+function replay(){if(state.action||state.transition)return;state.phase[state.current]=0;state.travel[state.current]=0;state.completed[state.current]=false;ui.ending.classList.remove('visible');ui.ending.hidden=true;state.sceneStart=performance.now();updateUI();}
+function drawAtlas(ctx,key,col,row,cols,rows,x,y,w,h,alpha=1,flip=false){const im=images[key];if(!im)return;const sw=im.width/cols,sh=im.height/rows;ctx.save();ctx.globalAlpha*=alpha;ctx.translate(x,y);if(flip)ctx.scale(-1,1);ctx.drawImage(im,col*sw,row*sh,sw,sh,-w/2,-h,w,h);ctx.restore();}
+function drawBoat(ctx,key,cx,base,w,h,alpha=1,moving=false){
+ const im=images[key];if(!im)return;ctx.save();ctx.globalAlpha*=alpha;ctx.translate(cx,base);
+ ctx.save();ctx.globalAlpha*=.12;ctx.filter='blur(2px) saturate(.42)';ctx.scale(1,-.24);ctx.drawImage(im,-w/2,-h,w,h);ctx.restore();
+ if(moving){ctx.save();ctx.globalAlpha*=.35;ctx.drawImage(images.wake,-w*.55,-6,w*1.1,16);ctx.restore();}
+ ctx.drawImage(im,-w/2,-h,w,h);ctx.restore();
+}
+function drawActors(now){
+ const canvas=ui.actors,ctx=canvas.getContext('2d'),r=ui.stage.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,1.5);
+ const w=Math.round(r.width*dpr),h=Math.round(r.height*dpr);if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}
+ ctx.setTransform(w/1000,0,0,h/562.5,0,0);ctx.clearRect(0,0,1000,562.5);
+ const i=state.current,local=(now-state.sceneStart)/1000,p=progress(now),phase=state.phase[i],moving=!!state.action;
+ const weight=state.transition?smooth((now-state.transition.start)/state.transition.duration):1;
+ if(state.transition?.snapshot){ctx.save();ctx.globalAlpha=1-weight;ctx.drawImage(state.transition.snapshot,0,0,1000,562.5);ctx.restore();}
+ ctx.save();ctx.globalAlpha=weight;
+ const bob=moving?Math.sin(local*1.25)*.6:0;
+ if(i===0)drawBoat(ctx,'boat1',lerp(530,1150,smooth(p)),445+bob,213,82,1,moving);
+ if(i===1){
+  const dock=phase===0?smooth(p):1;
+  drawBoat(ctx,'boat2',lerp(1110,903,smooth(Math.max(0,(dock-.12)/.88))),384,128,94,1,moving&&phase===0);
+  drawBoat(ctx,'boat2',lerp(1150,878,dock),485+bob,205,150,1,moving&&phase===0);
+  // Nobody walks until docking has completed AND the visitor clicks 搬运货物.
+  if(phase===2){
+   const elapsed=state.action?(now-state.action.start)/1000:26;
+   const poses=[0,1,2].map(j=>({...cargoPose(p,j),j})).sort((a,b)=>a.y-b.y);
+   for(const a of poses){
+    if(a.alpha<=0)continue;
+    const frame=Math.floor(elapsed*5+a.j)%4;
+    if(a.picking)drawAtlas(ctx,'loaders',Math.min(2,Math.floor(a.pickup*3)),0,4,2,a.x,a.y,a.height,a.height,a.alpha);
+    else drawAtlas(ctx,'workers',frame,a.returning?1:0,4,2,a.x,a.y,a.height,a.height,a.alpha,a.dx<0);
+   }
+  }
+ }
+ if(i===2){const elapsed=moving?(now-state.action.start)/1000:0;for(let j=0;j<6;j++){
+  const x=[175,228,307,361,502,553][j]+(moving?Math.sin(elapsed*.8+j*1.4)*7:0),y=[389,412,405,402,405,411][j];
+  drawAtlas(ctx,'loaders',moving?Math.floor(elapsed*2.5+j)%4:0,j%2,4,2,x,y,j<2?27:31,j<2?36:41);
+ }}
+ if(i===3){drawBoat(ctx,'boat4',lerp(604,422,smooth(p)),525+bob,185,83,1,moving);drawBoat(ctx,'small',lerp(822,905,smooth(p)),399,95,39,1,moving);}
+ if(i===4){const fade=1-smooth((p-.6)/.4);drawBoat(ctx,'boat5',lerp(300,730,p),476-180*p,lerp(375,60,p),lerp(230,38,p),fade,moving);}
+ ctx.restore();
+}
+function tick(now){
+ if(state.action&&progress(now)>=1)finishAction();
+ if(state.transition&&now-state.transition.start>=state.transition.duration){const intro=state.transition.intro;state.transition=null;updateUI();if(state.current===4&&state.completed[4]){ui.ending.hidden=false;ui.ending.classList.add('visible');}if(intro||(state.current===1&&state.phase[1]===0&&!state.completed[1]))perform();}
+ const t=state.transition,weight=t?smooth((now-t.start)/t.duration):1;
+ [...ui.bgs.children].forEach((b,n)=>{b.style.transition='none';b.style.zIndex=n===state.current?'1':'0';b.style.opacity=n===state.current?weight:t&&n===t.from?1:0;});
+ // During the dissolve use only the blended paintings, so old water never overlays incoming land.
+ water.update(now/1000,state.current,-1,t?0:1);
+ drawActors(now);requestAnimationFrame(tick);
 }
 function openCard(card){state.lastFocus=document.activeElement;ui.modalKicker.textContent=`第${['一','二','三','四','五'][state.current]}幕 · 文化笔记`;ui.modalTitle.textContent=card.title;ui.modalText.textContent=card.text;ui.modalNote.textContent=card.note||'';ui.modalNote.hidden=!card.note;ui.modalArt.style.backgroundImage=`url('${A+assets['bg'+(state.current+1)]}')`;ui.sources.replaceChildren();(card.sources||[]).forEach(s=>{const el=document.createElement(s.url?'a':'span');if(s.url){el.href=s.url;el.target='_blank';el.rel='noopener noreferrer';}el.textContent=`资料来源：${s.label}${s.url?' ↗':''}`;ui.sources.append(el);});ui.modal.hidden=false;ui.modalClose.focus();}
 function closeCard(){if(ui.modal.hidden)return;ui.modal.hidden=true;state.lastFocus?.focus?.();}
-function complete(){let i=state.current;state.completed[i]=true;if(i<4)state.unlocked=Math.max(state.unlocked,i+1);if(i===4){ui.ending.hidden=false;requestAnimationFrame(()=>ui.ending.classList.add('visible'));}state.action=null;updateUI();}
-function runAction(label,duration,callback){if(state.action)return;state.action={label,duration,start:performance.now(),callback};updateUI();}
-function perform(){if(!state.started||state.action||!ui.modal.hidden)return;const i=state.current;
- if(i===0)runAction('小舟向右启程…',7000,complete);
- else if(i===1){if(state.phase[i]===0)runAction('靠岸船驶入，缓缓停泊…',12500,()=>{state.phase[i]=1;state.completed[i]=false;ui.status.textContent='货物已靠岸，准备入城';updateUI();});else{state.phase[i]=2;runAction('货物沿岸道缓步入城…',5000,complete);}}
- else if(i===2)runAction('搬运、装载与系缆…',9000,complete);
- else if(i===3)runAction('扬帆驶过双塔…',9000,complete);
- else runAction('船帆渐远，驶向江海…',20000,complete);
-}
-function navigate(i){if(state.action||i<0||i>state.unlocked||i>4)return;closeCard();const old=state.current;state.current=i;state.sceneStart=performance.now();state.transition={from:old,start:performance.now(),duration:4000};ui.ending.classList.remove('visible');if(i!==4)ui.ending.hidden=true;updateUI();}
-function replay(){if(state.action)return;state.phase[state.current]=0;state.completed[state.current]=false;if(state.current<4)state.unlocked=Math.max(0,Math.min(state.unlocked,state.current));ui.ending.classList.remove('visible');ui.ending.hidden=true;state.sceneStart=performance.now();state.action=null;updateUI();}
-function drawAtlas(ctx,key,col,row,cols,rows,x,y,w,h,alpha=1){const im=images[key],sw=im.width/cols,sh=im.height/rows;ctx.save();ctx.globalAlpha*=alpha;ctx.drawImage(im,col*sw,row*sh,sw,sh,x-w/2,y-h,w,h);ctx.restore();}
-function drawBoat(ctx,key,cx,base,w,h,alpha=1,rot=0){const im=images[key];if(!im)return;ctx.save();ctx.globalAlpha*=alpha;ctx.translate(cx,base);ctx.rotate(rot);ctx.save();ctx.globalAlpha*=.14;ctx.filter='blur(2px) saturate(.42)';ctx.translate(0,h*.25);ctx.scale(1,-.25);ctx.drawImage(im,-w/2,0,w,h);ctx.restore();ctx.drawImage(images.wake,cx-w*.55,base-17,w*1.15,22);ctx.drawImage(im,-w/2,-h,w,h);ctx.restore();}
-function progress(now){if(!state.action)return 0;return Math.max(0,Math.min(1,(now-state.action.start)/state.action.duration));}
-function drawActors(now){const canvas=ui.actors,ctx=canvas.getContext('2d'),r=ui.stage.getBoundingClientRect();const dpr=Math.min(devicePixelRatio||1,1.5),w=Math.round(r.width*dpr),h=Math.round(r.height*dpr);if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}ctx.setTransform(w/1000,0,0,h/562.5,0,0);ctx.clearRect(0,0,1000,562.5);const i=state.current,local=(now-state.sceneStart)/1000,actP=progress(now),phase=state.phase[i];
- const bob=Math.sin(local*1.25)*.7;
- if(i===0){let p=state.action?smooth(actP):.05;drawBoat(ctx,'boat1',530+245*p,445+bob,213,82,1,Math.sin(local)*.003);}
- if(i===1){let dock=phase===0?(state.action?smooth(Math.min(1,actP*1.12)):0):1;drawBoat(ctx,'boat2',lerp(1100,878,dock),485+bob,205,150);drawBoat(ctx,'small',lerp(1080,886,smooth(Math.max(0,(local-2)/11))),393,110,42,.9);
-  const gait=Math.floor(local*3)%4,walkers=images.walkers;
-  if(walkers){drawAtlas(ctx,'walkers',gait,0,4,2,285+Math.sin(local*.3)*9,465,56,53);drawAtlas(ctx,'walkers',(gait+2)%4,1,4,2,420+Math.sin(local*.27)*7,495,43,54);}
-  if(images.cart)drawAtlas(ctx,'cart',gait%2,Math.floor(gait/2),2,2,628,321,74,52);
-  if(images.loaders)drawAtlas(ctx,'loaders',gait,0,4,2,832,341,26,32);
- }
- if(i===2){const moving=state.action?actP:Math.max(0,(Math.sin(local*.2)+1)/2);for(let j=0;j<6;j++){let x=[175,228,307,361,502,553][j]+(moving?Math.sin(local*.8+j*1.4)*7:0),y=[389,412,405,402,405,411][j],step=Math.floor(local*2.5+j)%4;drawAtlas(ctx,'loaders',step,j%2?1:0,4,2,x,y,j<2?27:31,j<2?36:41);}}
- if(i===3){const p=state.action?actP:Math.sin(local*.12)*.5+.5;drawBoat(ctx,'boat4',lerp(604,422,p),525+bob,185,83,.98);drawBoat(ctx,'small',lerp(822,905,p),399,95,39,.95);}
- if(i===4){const p=state.action?actP:Math.max(0,Math.min(1,local/20));const fade=state.action?1-smooth(Math.max(0,(actP-.60)/.4)):1-smooth(Math.max(0,(local-12)/8));drawBoat(ctx,'boat5',lerp(300,730,p),476-180*p,lerp(375,60,p),lerp(230,38,p),fade);}
-}
-function smooth(x){x=Math.max(0,Math.min(1,x));return x*x*(3-2*x);}function lerp(a,b,t){return a+(b-a)*t;}
-function tick(now){if(state.action&&progress(now)>=1){const fn=state.action.callback;state.action=null;fn();}if(state.transition&&now-state.transition.start>=state.transition.duration){state.transition=null;updateUI();}
- drawActors(now);const weight=state.transition?smooth((now-state.transition.start)/state.transition.duration):1;water.update(now/1000,state.current,state.transition?.from??-1,weight);
- if(state.current===4&&((state.action&&progress(now)>.67)||(!state.action&&(now-state.sceneStart)>14000))){ui.ending.hidden=false;ui.ending.classList.add('visible');}requestAnimationFrame(tick);}
-
 class Loop{constructor(src,vol){this.audio=new Audio(src);this.audio.loop=true;this.audio.volume=vol;this.vol=vol;}start(){this.audio.volume=this.vol;this.audio.play().catch(()=>{});}stop(){this.audio.pause();this.audio.currentTime=0;}}
 const ambience=[new Loop(A+'audio/01-water-synthetic.wav',.13),new Loop(A+'audio/02-wind-synthetic.wav',.045)];const cues={port:new Audio(A+'audio/03-port-murmur-stylized.wav'),wood:new Audio(A+'audio/04-wood-creak-synthetic.wav'),rope:new Audio(A+'audio/05-rope-friction-synthetic.wav'),vendor:new Audio(A+'audio/叫卖-茶水.wav'),wedding:new Audio(A+'audio/迎亲吹奏-合成.wav')};let cityTimers=[];
 function playCue(a,vol=.2){if(!state.sound)return;const c=cues[a];if(c){c.currentTime=0;c.volume=vol;c.play().catch(()=>{});}}
 function toggleSound(){state.sound=!state.sound;ui.soundLabel.textContent=state.sound?'关闭声音':'开启声音';ui.sound.setAttribute('aria-label',ui.soundLabel.textContent);if(state.sound){ambience.forEach(a=>a.start());if(state.current===1)citySound();}else{ambience.forEach(a=>a.stop());Object.values(cues).forEach(a=>{a.pause();a.currentTime=0;});cityTimers.forEach(clearTimeout);cityTimers=[];}}
 function citySound(){if(!state.sound||state.current!==1)return;playCue('port',.22);playCue('vendor',.26);playCue('wedding',.15);cityTimers=[setTimeout(()=>playCue('vendor',.23),8500),setTimeout(()=>playCue('wedding',.14),14500)];}
-function bind(){ui.start.onclick=()=>{state.started=true;ui.intro.classList.add('closed');toggleSound();updateUI();ui.primary.focus();};ui.sound.onclick=toggleSound;ui.primary.onclick=()=>{if(state.current===2&&!state.action&&!ui.modal.hidden)return;perform();if(state.current===1&&state.phase[1]===0)citySound();if(state.current===2)playCue('rope',.13);};ui.prev.onclick=()=>navigate(state.current-1);ui.next.onclick=()=>navigate(state.current+1);ui.skip.onclick=()=>{if(state.action){const fn=state.action.callback;state.action=null;fn();}};ui.replay.onclick=replay;ui.knowledge.onclick=()=>openCard(SCENES[state.current].card);ui.modalClose.onclick=closeCard;ui.modal.onclick=e=>{if(e.target===ui.modal)closeCard();};
- document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeCard();return;}if(!state.started||!ui.modal.hidden||state.action)return;if(e.key==='ArrowLeft')navigate(state.current-1);if(e.key==='ArrowRight')navigate(state.current+1);});
- let start=null;ui.stage.addEventListener('pointerdown',e=>{if(e.target.closest('button'))return;start={x:e.clientX,y:e.clientY};});ui.stage.addEventListener('pointerup',e=>{if(!start||!state.started||state.action)return;let dx=e.clientX-start.x,dy=e.clientY-start.y;start=null;if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.4)navigate(state.current+(dx<0?1:-1));});document.addEventListener('visibilitychange',()=>{if(document.hidden&&state.sound)toggleSound();});
+
+function bind(){
+ ui.start.onclick=()=>{if(!state.ready)return;state.started=true;ui.intro.classList.add('closed');toggleSound();state.transition={from:0,start:performance.now(),duration:950,intro:true};updateUI();};
+ ui.sound.onclick=toggleSound;ui.primary.onclick=perform;ui.prev.onclick=()=>navigate(state.current-1);ui.next.onclick=()=>navigate(state.current+1);ui.skip.onclick=finishAction;ui.replay.onclick=replay;ui.knowledge.onclick=()=>openCard(SCENES[state.current].card);ui.modalClose.onclick=closeCard;ui.modal.onclick=e=>{if(e.target===ui.modal)closeCard();};
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeCard();return;}if(!state.started||!ui.modal.hidden||state.action||state.transition)return;if(e.key==='ArrowLeft')navigate(state.current-1);if(e.key==='ArrowRight')navigate(state.current+1);});
+ let start=null;ui.stage.addEventListener('pointerdown',e=>{if(e.target.closest('button'))return;start={x:e.clientX,y:e.clientY};});ui.stage.addEventListener('pointerup',e=>{if(!start||!state.started||state.action||state.transition)return;const dx=e.clientX-start.x,dy=e.clientY-start.y;start=null;if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.4)navigate(state.current+(dx<0?1:-1));});
+ document.addEventListener('visibilitychange',()=>{if(document.hidden&&state.sound)toggleSound();});
 }
-setup();bind();updateUI();loading.then(()=>requestAnimationFrame(tick)).catch(e=>{console.error(e);ui.status.textContent=`素材读取失败：${e.message}`;});
+setup();bind();updateUI();
+loading.then(()=>{state.ready=true;ui.start.disabled=false;ui.start.textContent='开始行舟 →';updateUI();requestAnimationFrame(tick);}).catch(e=>{console.error(e);ui.start.textContent='素材载入失败，请刷新重试';ui.status.textContent=`素材读取失败：${e.message}`;});
+// Optional water rendering must not block loading the rest of the experience.
+import('./water-scene.js').then(({WaterScene})=>{water=new WaterScene(ui.stage,console.warn);}).catch(e=>console.warn('水面暂不可用，其他交互正常。',e));
