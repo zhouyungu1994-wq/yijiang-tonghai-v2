@@ -1,0 +1,5 @@
+.visual-area{height:min(56.25vw,calc(100svh - 265px));min-height:280px;aspect-ratio:auto;max-height:none}
+.intro{background-image:linear-gradient(#0d2529a8,#0d2529d9),url('assets/backgrounds/01-净底图.png')}
+.stage{width:min(100vw,177.7vh,calc((100svh - 265px)*1.776));max-height:100%}
+@media(max-width:850px){.visual-area{height:min(56.25vw,calc(100svh - 360px));min-height:240px}.stage{width:min(100vw,177.7vh,calc(240px*1.776));max-height:none}}
+@media(max-width:430px){.visual-area{height:240px;min-height:240px}.stage{width:calc(240px*1.776)}}
