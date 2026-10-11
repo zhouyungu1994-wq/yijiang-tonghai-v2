@@ -6,8 +6,8 @@ export const lerp = (a,b,p) => a+(b-a)*p;
 // Two workers enter from the lower-left path, take goods in the market, then return.
 // The third worker keeps the earlier short stone-step route.
 export const cargoRoutes = [
-  [[165,452],[206,453],[241,445],[271,428],[299,407],[328,389],[349,379]],
-  [[184,472],[222,464],[256,449],[285,428],[314,416],[350,408],[376,396]],
+  [[249,444],[263,432],[283,414],[303,394],[327,374],[350,359]],
+  [[264,453],[278,436],[298,414],[322,395],[350,381],[375,367]],
   [[846,234],[824,260],[803,282],[793,304],[810,329],[828,355],[841,381]]
 ];
 export function routePoint(points, progress) {
@@ -28,17 +28,17 @@ export function cargoPose(progress,index) {
   const point=routePoint(cargoRoutes[index],travel);
   return {...point,returning,picking:p>=.44&&p<=.53,
     pickup:clamp((p-.44)/.09),
-    height:lerp(36,75,clamp((point.y-234)/283)),
-    alpha:smooth(p/.04)*(1-smooth((p-.95)/.05)),
+    height:index<2?lerp(39,56,clamp((point.y-234)/283)):lerp(36,75,clamp((point.y-234)/283)),
+    alpha:index<2?smooth(p/.12)*(1-smooth((p-.84)/.16)):smooth(p/.04)*(1-smooth((p-.95)/.05)),
     p};
 }
 
 // From the middle of the pier, porters visit the cargo on each ship and return.
 export const portRoutes = [
-  [[443,383],[410,386],[377,389],[345,392],[314,396]],
-  [[456,389],[493,394],[522,400],[551,405]],
-  [[434,397],[402,399],[368,400],[336,402]],
-  [[466,398],[503,405],[536,410],[565,411]]
+  [[438,382],[403,383],[366,384],[330,385],[295,385]],
+  [[454,387],[485,387],[521,388],[557,388]],
+  [[435,397],[400,397],[363,398],[328,398]],
+  [[454,401],[489,401],[524,402],[557,402]]
 ];
 export function portPose(progress,index) {
   const p=clamp((progress-index*.06)/.82);

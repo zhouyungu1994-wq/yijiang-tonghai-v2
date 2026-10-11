@@ -1,4 +1,4 @@
-import {smooth,lerp,cargoPose,portPose} from './motion.js?v=20261011-4';
+import {smooth,lerp,cargoPose,portPose} from './motion.js?v=20261012-5';
 const A='assets/';
 const SOURCES={
  river:{label:'浙江省交通运输厅｜温州—丽水海河联运启航（2024）',url:'https://jtyst.zj.gov.cn/art/2024/12/27/art_1229304975_59039943.html'},
@@ -136,7 +136,7 @@ function drawActors(now){
     if(a.alpha<=0)continue;
     const frame=Math.floor(elapsed*5+a.j)%4;
     if(a.picking)drawAtlas(ctx,'loaders',Math.min(2,Math.floor(a.pickup*3)),0,4,2,a.x,a.y,a.height,a.height,a.alpha);
-    else drawAtlas(ctx,'workers',frame,a.returning?1:0,4,2,a.x,a.y,a.height,a.height,a.alpha,a.returning?a.dx>0:a.dx<0);
+    else drawAtlas(ctx,'workers',frame,a.returning?1:0,4,2,a.x,a.y,a.height,a.height,a.alpha,a.dx<0);
    }
    restoreForegroundTree(ctx);
   }
@@ -146,17 +146,19 @@ function drawActors(now){
   const porters=[0,1,2,3].map(j=>({...portPose(p,j),j})).sort((a,b)=>a.y-b.y);
   for(const a of porters){
    if(a.alpha<=0)continue;
-   const frame=a.picking?Math.floor(elapsed*2+a.j)%4:Math.floor(elapsed*4+a.j)%4;
-   drawAtlas(ctx,'loaders',frame,a.returning?1:0,4,2,a.x,a.y,27,36,a.alpha,a.returning?a.dx>0:a.dx<0);
+   const frame=Math.floor(elapsed*(a.picking?3:5)+a.j)%4;
+   const sheet=a.picking?'loaders':a.returning?'loaders':'workers';
+   const row=a.returning?1:0;
+   drawAtlas(ctx,sheet,frame,row,4,2,a.x,a.y,27,36,a.alpha,a.dx<0);
   }
  }
  if(i===3){drawBoat(ctx,'boat4',lerp(604,422,smooth(p)),525+bob,185,83,1,moving);drawBoat(ctx,'small',lerp(822,905,smooth(p)),399,95,39,1,moving);}
  if(i===4){
   const fade=1-smooth((p-.6)/.4);
   ctx.save();
-  ctx.globalAlpha*=.72*(1-smooth((p-.1)/.88));
+  ctx.globalAlpha*=.72*(1-smooth((p-.68)/.32));
   ctx.filter='grayscale(.66) saturate(.48) brightness(.73)';
-  ctx.drawImage(images.distantBoat,687+100*p,194-46*p,113-64*p,88-49*p);
+  ctx.drawImage(images.distantBoat,687+144*smooth(p),194-18*p,113-70*p,88-55*p);
   ctx.restore();
   drawBoat(ctx,'boat5',lerp(300,730,p),476-180*p,lerp(375,60,p),lerp(230,38,p),fade,moving);
  }
