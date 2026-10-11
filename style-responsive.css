@@ -9,6 +9,7 @@
 .transitioning .scene-count,.transitioning .scene-caption{visibility:hidden}
 .topbar{height:64px;position:sticky;top:0}
 .control-area{position:relative;z-index:1;flex:none;min-height:126px;padding:8px clamp(20px,4vw,76px) 10px;gap:20px;background:#f1e8d7;color:#183a40;border-top:1px solid #c5b698}
+@media(min-width:851px){.control-area{margin-top:-42px}.scene-caption{bottom:64px}}
 .chapter-copy h1{font-size:clamp(24px,2.1vw,36px);margin:3px 0}
 .control-area .chapter-overline,.control-area .chapter-copy p,.control-area .text-link,.control-area .action-status,.control-area .replay-button,.control-area .button.secondary{color:#183a40}
 .control-area .button.primary{background:#8d7049;color:#fff8e9;border-color:#8d7049}

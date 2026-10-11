@@ -33,18 +33,19 @@ export function cargoPose(progress,index) {
     p};
 }
 
-// Every foot position follows the sloping wooden deck; the return points are spread out.
+// These positions locate the sprite centres. The soles sit about 18 design pixels lower.
+// Follow the marked shore path to the junction, then the sloping wooden plank to the ships.
 export const portRoutes = [
-  [[450,380],[430,377],[402,373],[375,370]],
-  [[465,382],[494,386],[526,391],[558,394]],
-  [[480,384],[455,381],[426,377],[400,374]],
-  [[495,386],[520,389],[546,393],[570,396]]
+  [[480,358],[450,364],[415,376],[375,389],[345,397]],
+  [[485,356],[450,366],[415,380],[450,393],[500,405],[550,416]],
+  [[465,361],[435,370],[405,381],[370,390]],
+  [[500,353],[460,364],[420,380],[455,394],[505,406],[560,417]]
 ];
 export const portReturnRoutes = [
-  [[375,370],[394,389],[413,404],[432,414]],
-  [[558,394],[531,401],[498,414],[464,422]],
-  [[400,374],[431,393],[465,413],[496,430]],
-  [[570,396],[557,405],[542,421],[528,438]]
+  [[345,397],[375,389],[415,380],[432,387]],
+  [[550,416],[520,409],[490,401],[464,395]],
+  [[370,390],[405,381],[445,392],[496,403]],
+  [[560,417],[550,415],[540,413],[528,411]]
 ];
 export function portPose(progress,index) {
   const p=clamp((progress-index*.06)/.82);
