@@ -1,12 +1,13 @@
-// All positions use a 1000 × 562.5 design grid (scaled to 1920 × 1080).
+// All positions use a 1000 × 562.5 design grid, scaled with the painting.
 export const clamp = p => Math.max(0, Math.min(1, p));
 export const smooth = p => { p = clamp(p); return p*p*(3-2*p); };
 export const lerp = (a,b,p) => a+(b-a)*p;
 
-// Follow the shore roads around the tea canopy, then descend to the stone steps.
+// Two workers leave the dock, pick up goods in the open market, then return.
+// The third worker keeps the earlier short stone-step route.
 export const cargoRoutes = [
-  [[249,487],[311,445],[333,403],[325,352],[346,318],[397,282],[568,278],[698,250],[771,273],[799,306],[817,341],[839,377]],
-  [[406,517],[449,470],[368,433],[349,381],[338,337],[375,295],[545,279],[682,250],[762,269],[793,300],[816,337],[839,377]],
+  [[830,379],[803,388],[775,402],[750,431],[713,467],[628,474],[535,469],[445,458],[371,442],[332,420],[326,397]],
+  [[833,391],[805,399],[777,416],[746,452],[702,481],[625,486],[540,479],[456,467],[397,453],[373,433],[371,414]],
   [[846,234],[824,260],[803,282],[793,304],[810,329],[828,355],[841,381]]
 ];
 export function routePoint(points, progress) {
@@ -27,7 +28,7 @@ export function cargoPose(progress,index) {
   const point=routePoint(cargoRoutes[index],travel);
   return {...point,returning,picking:p>=.44&&p<=.53,
     pickup:clamp((p-.44)/.09),
-    height:lerp(39,85,clamp((point.y-234)/283)),
+    height:lerp(36,75,clamp((point.y-234)/283)),
     alpha:smooth(p/.04)*(1-smooth((p-.95)/.05)),
     p};
 }

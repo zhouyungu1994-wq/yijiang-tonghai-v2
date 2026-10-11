@@ -39,9 +39,17 @@ const ui={stage:byId('stage'),nav:byId('chapterNav'),bgs:byId('backgrounds'),act
 const state={current:0,unlocked:0,phase:[0,0,0,0,0],completed:[false,false,false,false,false],travel:[0,0,0,0,0],started:false,ready:false,sound:false,action:null,transition:null,lastFocus:null,sceneStart:performance.now()};
 let water={update(){}};
 const images={};
-const assets={boat1:'ships/01-向右货舟.png',boat2:'ships/02-靠岸货船.png',boat4:'ships/04-行航帆船.png',boat5:'ships/05-远行海船.png',small:'ships/04-小舟.png',wake:'sprites/船行水纹.png',workers:'sprites/02-空手与搬货-4列2行.png',loaders:'sprites/03-装卸-4列2行.png'};
+const assets={boat1:'ships/01-向右货舟.png',boat2:'ships/02-靠岸货船.png',boat4:'ships/04-行航帆船.png',boat5:'ships/05-远行海船.png',distantBoat:'ships/05-远处双帆小舟.png',small:'ships/04-小舟.png',wake:'sprites/船行水纹.png',workers:'sprites/02-空手与搬货-4列2行.png',loaders:'sprites/03-装卸-4列2行.png'};
 for(let i=1;i<=5;i++)assets['bg'+i]=`backgrounds/0${i}-净底图.png`;
-function loadImage(key,path){return new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>{images[key]=im;resolve();};im.onerror=()=>reject(new Error(path));im.src=A+path;});}
+function loadImage(key,path){return new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>{
+ if(key==='distantBoat'){
+  const sprite=document.createElement('canvas');sprite.width=im.width;sprite.height=im.height;
+  const sc=sprite.getContext('2d',{willReadFrequently:true});sc.drawImage(im,0,0);
+  const pixels=sc.getImageData(0,0,sprite.width,sprite.height);
+  for(let k=3;k<pixels.data.length;k+=4){const a=pixels.data[k];pixels.data[k]=a<70?0:Math.min(255,(a-70)*255/180);}
+  sc.putImageData(pixels,0,0);images[key]=sprite;
+ }else images[key]=im;
+ resolve();};im.onerror=()=>reject(new Error(path));im.src=A+path;});}
 const loading=Promise.all(Object.entries(assets).map(([k,p])=>loadImage(k,p)));
 function setup(){
  ui.bgs.innerHTML=Array.from({length:5},(_,i)=>`<img class="bg${i===0?' active':''}" data-bg="${i}" src="${A+assets['bg'+(i+1)]}" alt="第${i+1}幕：${SCENES[i].title}">`).join('');
@@ -80,7 +88,7 @@ function perform(){
  if(i===0)runAction('小舟向右启程…',8500,()=>{complete();navigate(1);});
  else if(i===1){
   if(state.phase[i]===0){citySound();runAction('两艘船缓缓靠岸…',10000,()=>{state.phase[i]=1;state.travel[i]=0;updateUI();});}
-  else{state.phase[i]=2;runAction('空手前往码头，取货后沿原路返回…',26000,complete);}
+  else{state.phase[i]=2;runAction('沿岸道取货，沿原路返回…',26000,complete);}
  }else if(i===2){playCue('rope',.13);runAction('搬运、装载与系缆…',9000,complete);}
  else if(i===3)runAction('扬帆驶过双塔…',11000,complete);
  else runAction('船帆渐远，驶向江海…',20000,complete);
@@ -100,6 +108,12 @@ function drawBoat(ctx,key,cx,base,w,h,alpha=1,moving=false){
  if(moving){ctx.save();ctx.globalAlpha*=.35;ctx.drawImage(images.wake,-w*.55,-6,w*1.1,16);ctx.restore();}
  ctx.drawImage(im,-w/2,-h,w,h);ctx.restore();
 }
+function restoreForegroundTree(ctx){
+ const bg=images.bg2;if(!bg)return;
+ ctx.save();ctx.beginPath();
+ [[618,286],[645,246],[681,219],[726,228],[764,257],[778,302],[754,348],[730,387],[704,445],[670,474],[637,444],[621,388]].forEach(([x,y],n)=>n?ctx.lineTo(x,y):ctx.moveTo(x,y));
+ ctx.closePath();ctx.clip();ctx.drawImage(bg,0,0,1000,562.5);ctx.restore();
+}
 function drawActors(now){
  const canvas=ui.actors,ctx=canvas.getContext('2d'),r=ui.stage.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,1.5);
  const w=Math.round(r.width*dpr),h=Math.round(r.height*dpr);if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}
@@ -109,7 +123,7 @@ function drawActors(now){
  if(state.transition?.snapshot){ctx.save();ctx.globalAlpha=1-weight;ctx.drawImage(state.transition.snapshot,0,0,1000,562.5);ctx.restore();}
  ctx.save();ctx.globalAlpha=weight;
  const bob=moving?Math.sin(local*1.25)*.6:0;
- if(i===0)drawBoat(ctx,'boat1',lerp(530,1150,smooth(p)),445+bob,213,82,1,moving);
+ if(i===0)drawBoat(ctx,'boat1',lerp(530,893,smooth(p)),445+bob,213,82,1,moving);
  if(i===1){
   const dock=phase===0?smooth(p):1;
   drawBoat(ctx,'boat2',lerp(1110,903,smooth(Math.max(0,(dock-.12)/.88))),384,128,94,1,moving&&phase===0);
@@ -122,21 +136,32 @@ function drawActors(now){
     if(a.alpha<=0)continue;
     const frame=Math.floor(elapsed*5+a.j)%4;
     if(a.picking)drawAtlas(ctx,'loaders',Math.min(2,Math.floor(a.pickup*3)),0,4,2,a.x,a.y,a.height,a.height,a.alpha);
-    else drawAtlas(ctx,'workers',frame,a.returning?1:0,4,2,a.x,a.y,a.height,a.height,a.alpha,a.dx<0);
+    else drawAtlas(ctx,'workers',frame,a.returning?1:0,4,2,a.x,a.y,a.height,a.height,a.alpha,a.returning?a.dx>0:a.dx<0);
    }
+   restoreForegroundTree(ctx);
   }
  }
- if(i===2){const elapsed=moving?(now-state.action.start)/1000:0;for(let j=0;j<6;j++){
-  const x=[175,228,307,361,502,553][j]+(moving?Math.sin(elapsed*.8+j*1.4)*7:0),y=[389,412,405,402,405,411][j];
-  drawAtlas(ctx,'loaders',moving?Math.floor(elapsed*2.5+j)%4:0,j%2,4,2,x,y,j<2?27:31,j<2?36:41);
- }}
+ if(i===2){const elapsed=moving?(now-state.action.start)/1000:0;
+  const workers=[{x:175,y:389,dx:23,dy:-5},{x:307,y:405,dx:42,dy:-7},{x:361,y:402,dx:32,dy:-3},{x:502,y:405,dx:37,dy:-8},{x:553,y:411,dx:30,dy:-5}];
+  const trip=p<.5?smooth(p*2):smooth((1-p)*2);
+  workers.forEach((worker,n)=>{
+   const x=worker.x+(moving?worker.dx*trip:0),y=worker.y+(moving?worker.dy*trip:0);
+   const frame=moving?Math.floor(elapsed*3+n)%4:0;
+   drawAtlas(ctx,'loaders',frame,n%2,4,2,x,y,n===0?27:31,n===0?36:41);
+  });
+ }
  if(i===3){drawBoat(ctx,'boat4',lerp(604,422,smooth(p)),525+bob,185,83,1,moving);drawBoat(ctx,'small',lerp(822,905,smooth(p)),399,95,39,1,moving);}
- if(i===4){const fade=1-smooth((p-.6)/.4);drawBoat(ctx,'boat5',lerp(300,730,p),476-180*p,lerp(375,60,p),lerp(230,38,p),fade,moving);}
+ if(i===4){
+  const fade=1-smooth((p-.6)/.4);
+  ctx.save();ctx.globalAlpha*=1-smooth((p-.35)/.6);
+  ctx.drawImage(images.distantBoat,687+27*p,194-7*p,113-20*p,88-15*p);ctx.restore();
+  drawBoat(ctx,'boat5',lerp(300,730,p),476-180*p,lerp(375,60,p),lerp(230,38,p),fade,moving);
+ }
  ctx.restore();
 }
 function tick(now){
  if(state.action&&progress(now)>=1)finishAction();
- if(state.transition&&now-state.transition.start>=state.transition.duration){const intro=state.transition.intro;state.transition=null;updateUI();if(state.current===4&&state.completed[4]){ui.ending.hidden=false;ui.ending.classList.add('visible');}if(intro||(state.current===1&&state.phase[1]===0&&!state.completed[1]))perform();}
+ if(state.transition&&now-state.transition.start>=state.transition.duration){state.transition=null;updateUI();if(state.current===4&&state.completed[4]){ui.ending.hidden=false;ui.ending.classList.add('visible');}}
  const t=state.transition,weight=t?smooth((now-t.start)/t.duration):1;
  [...ui.bgs.children].forEach((b,n)=>{b.style.transition='none';b.style.zIndex=n===state.current?'1':'0';b.style.opacity=n===state.current?weight:t&&n===t.from?1:0;});
  // During the dissolve use only the blended paintings, so old water never overlays incoming land.
