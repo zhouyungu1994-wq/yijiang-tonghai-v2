@@ -1,4 +1,4 @@
-import {smooth,lerp,cargoPose,portPose} from './motion.js?v=20261012-7';
+import {smooth,lerp,cargoPose,portPose} from './motion.js?v=20261012-8';
 const A='assets/';
 const SOURCES={
  river:{label:'浙江省交通运输厅｜温州—丽水海河联运启航（2024）',url:'https://jtyst.zj.gov.cn/art/2024/12/27/art_1229304975_59039943.html'},
