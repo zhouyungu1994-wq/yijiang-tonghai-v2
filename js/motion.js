@@ -33,18 +33,24 @@ export function cargoPose(progress,index) {
     p};
 }
 
-// From the middle of the pier, porters visit the cargo on each ship and return.
+// Every foot position follows the sloping wooden deck; the return points are spread out.
 export const portRoutes = [
-  [[472,382],[454,382],[436,383],[418,384]],
-  [[478,387],[511,387],[546,388],[584,389]],
-  [[468,399],[452,399],[435,399],[419,400]],
-  [[477,402],[514,402],[550,402],[585,403]]
+  [[450,380],[430,377],[402,373],[375,370]],
+  [[465,382],[494,386],[526,391],[558,394]],
+  [[480,384],[455,381],[426,377],[400,374]],
+  [[495,386],[520,389],[546,393],[570,396]]
+];
+export const portReturnRoutes = [
+  [[375,370],[390,372],[405,374]],
+  [[558,394],[518,389],[480,384],[450,380]],
+  [[400,374],[438,379],[473,384],[505,388]],
+  [[570,396],[560,395],[550,393]]
 ];
 export function portPose(progress,index) {
   const p=clamp((progress-index*.06)/.82);
   const returning=p>.56;
-  const travel=p<.45?p/.45:p<.56?1:1-(p-.56)/.44;
-  const point=routePoint(portRoutes[index],travel);
+  const travel=returning?(p-.56)/.44:p<.45?p/.45:1;
+  const point=routePoint(returning?portReturnRoutes[index]:portRoutes[index],travel);
   return {...point,returning,picking:p>=.45&&p<=.56,
     alpha:smooth(p/.04),p};
 }

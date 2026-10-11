@@ -1,5 +1,5 @@
-/* Keep the navigation, painting, and action prompts visible in one desktop viewport. */
-.visual-area{width:min(100%,1920px,calc((100svh - 190px)*16/9));height:auto;aspect-ratio:16/9;min-height:0;max-height:none;margin:0 auto}
+/* Let the full-size painting and the cream navigation occupy separate scroll sections. */
+.visual-area{width:min(100%,1920px);height:auto;aspect-ratio:16/9;min-height:0;max-height:none;margin:0 auto}
 .stage{inset:0;width:100%;height:100%;aspect-ratio:16/9;max-height:none;transform:none}
 .intro{background-image:linear-gradient(#0d2529a8,#0d2529d9),url('assets/backgrounds/01-净底图.png')}
 .intro-overline{margin-top:0}
@@ -8,7 +8,7 @@
 .hotspot-icon{width:1.65em;height:1.65em;font-size:.85em}
 .transitioning .scene-count,.transitioning .scene-caption{visibility:hidden}
 .topbar{height:64px;position:sticky;top:0}
-.control-area{min-height:126px;padding:8px clamp(20px,4vw,76px) 10px;gap:20px;background:#f1e8d7;color:#183a40}
+.control-area{position:relative;z-index:1;flex:none;min-height:126px;padding:8px clamp(20px,4vw,76px) 10px;gap:20px;background:#f1e8d7;color:#183a40;border-top:1px solid #c5b698}
 .chapter-copy h1{font-size:clamp(24px,2.1vw,36px);margin:3px 0}
 .control-area .chapter-overline,.control-area .chapter-copy p,.control-area .text-link,.control-area .action-status,.control-area .replay-button,.control-area .button.secondary{color:#183a40}
 .control-area .button.primary{background:#8d7049;color:#fff8e9;border-color:#8d7049}

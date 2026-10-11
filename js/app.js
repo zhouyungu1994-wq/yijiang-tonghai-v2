@@ -1,4 +1,4 @@
-import {smooth,lerp,cargoPose,portPose} from './motion.js?v=20261012-6';
+import {smooth,lerp,cargoPose,portPose} from './motion.js?v=20261012-7';
 const A='assets/';
 const SOURCES={
  river:{label:'浙江省交通运输厅｜温州—丽水海河联运启航（2024）',url:'https://jtyst.zj.gov.cn/art/2024/12/27/art_1229304975_59039943.html'},
@@ -149,7 +149,7 @@ function drawActors(now){
    const frame=moving?Math.floor(elapsed*(a.picking?3:5)+a.j)%4:1;
    const sheet=a.picking?'loaders':a.returning?'loaders':'workers';
    const row=a.returning?1:0;
-   drawAtlas(ctx,sheet,frame,row,4,2,a.x,a.y,27,36,a.alpha,a.dx<0);
+   drawAtlas(ctx,sheet,frame,row,4,2,a.x,a.y,27,36,a.alpha,a.returning?a.dx>0:a.dx<0);
   }
  }
  if(i===3){drawBoat(ctx,'boat4',lerp(604,422,smooth(p)),525+bob,185,83,1,moving);drawBoat(ctx,'small',lerp(822,905,smooth(p)),399,95,39,1,moving);}
