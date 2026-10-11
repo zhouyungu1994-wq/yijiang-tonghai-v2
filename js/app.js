@@ -1,4 +1,4 @@
-import {smooth,lerp,cargoPose,portPose} from './motion.js?v=20261012-5';
+import {smooth,lerp,cargoPose,portPose} from './motion.js?v=20261012-6';
 const A='assets/';
 const SOURCES={
  river:{label:'浙江省交通运输厅｜温州—丽水海河联运启航（2024）',url:'https://jtyst.zj.gov.cn/art/2024/12/27/art_1229304975_59039943.html'},
@@ -141,12 +141,12 @@ function drawActors(now){
    restoreForegroundTree(ctx);
   }
  }
- if(i===2&&moving){
-  const elapsed=(now-state.action.start)/1000;
+ if(i===2&&(moving||state.completed[2])){
+  const elapsed=moving?(now-state.action.start)/1000:0;
   const porters=[0,1,2,3].map(j=>({...portPose(p,j),j})).sort((a,b)=>a.y-b.y);
   for(const a of porters){
    if(a.alpha<=0)continue;
-   const frame=Math.floor(elapsed*(a.picking?3:5)+a.j)%4;
+   const frame=moving?Math.floor(elapsed*(a.picking?3:5)+a.j)%4:1;
    const sheet=a.picking?'loaders':a.returning?'loaders':'workers';
    const row=a.returning?1:0;
    drawAtlas(ctx,sheet,frame,row,4,2,a.x,a.y,27,36,a.alpha,a.dx<0);
@@ -156,9 +156,9 @@ function drawActors(now){
  if(i===4){
   const fade=1-smooth((p-.6)/.4);
   ctx.save();
-  ctx.globalAlpha*=.72*(1-smooth((p-.68)/.32));
+  ctx.globalAlpha*=.72*(1-smooth((p-.52)/.22));
   ctx.filter='grayscale(.66) saturate(.48) brightness(.73)';
-  ctx.drawImage(images.distantBoat,687+144*smooth(p),194-18*p,113-70*p,88-55*p);
+  ctx.drawImage(images.distantBoat,687-100*smooth(p/.72),194+48*p,113-60*p,88-50*p);
   ctx.restore();
   drawBoat(ctx,'boat5',lerp(300,730,p),476-180*p,lerp(375,60,p),lerp(230,38,p),fade,moving);
  }
