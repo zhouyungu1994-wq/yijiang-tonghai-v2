@@ -79,9 +79,9 @@ function updateUI(){
  ui.stage.classList.toggle('transitioning',!!state.transition);hotspots();
 }
 function progress(now){return state.action?Math.max(0,Math.min(1,(now-state.action.start)/state.action.duration)):state.travel[state.current];}
-function complete(){const i=state.current;state.travel[i]=1;state.completed[i]=true;if(i<4)state.unlocked=Math.max(state.unlocked,i+1);state.action=null;updateUI();if(i===4){ui.ending.hidden=false;requestAnimationFrame(()=>ui.ending.classList.add('visible'));}}
+function complete(){const i=state.current;state.travel[i]=1;state.completed[i]=true;if(i<4)state.unlocked=Math.max(state.unlocked,i+1);state.action=null;if(i===1)fadeOutCity();updateUI();if(i===4){ui.ending.hidden=false;requestAnimationFrame(()=>ui.ending.classList.add('visible'));}}
 function runAction(label,duration,callback){if(state.action||state.transition)return;state.action={label,duration,start:performance.now(),callback};if(state.sound&&isSailing())sailingSound.start();updateUI();}
-function finishAction(){if(!state.action)return;const from=state.current,fn=state.action.callback;state.travel[from]=1;state.action=null;if(from!==0)sailingSound.stop();fn();if(from===0&&!state.transition)sailingSound.stop();}
+function finishAction(){if(!state.action)return;const from=state.current,fn=state.action.callback,keepDockWater=from===1;state.travel[from]=1;state.action=null;if(from!==0&&!keepDockWater)sailingSound.stop();fn();if(from===0&&!state.transition)sailingSound.stop();}
 function perform(){
  if(!state.started||!state.ready||state.action||state.transition||!ui.modal.hidden||state.completed[state.current])return;
  const i=state.current;
@@ -167,6 +167,7 @@ function drawActors(now){
 }
 function tick(now){
  if(state.action&&progress(now)>=1)finishAction();
+ for(let n=audioFades.length-1;n>=0;n--){const fade=audioFades[n],amount=Math.max(0,Math.min(1,(now-fade.start)/fade.duration));fade.audio.volume=fade.from*(1-smooth(amount));if(amount>=1){if(fade.loop)fade.loop.stop();else{fade.audio.pause();fade.audio.currentTime=0;}audioFades.splice(n,1);}}
  if(state.transition&&now-state.transition.start>=state.transition.duration){const firstToCity=state.transition.from===0&&state.current===1;state.transition=null;updateUI();if(firstToCity)sailingSound.stop();if(state.current===1){if(state.sound)cityMarket.audio.volume=cityMarket.vol;citySound();}if(state.current===4&&state.completed[4]){ui.ending.hidden=false;ui.ending.classList.add('visible');}}
  const t=state.transition,weight=t?smooth((now-t.start)/t.duration):1;
  if(t&&state.current===1&&state.sound){if(t.from===0)sailingSound.audio.volume=sailingSound.vol*(1-weight);cityMarket.audio.volume=cityMarket.vol*weight;}
@@ -181,13 +182,15 @@ class Loop{constructor(src,vol){this.audio=new Audio(src);this.audio.loop=true;t
 const sailingSound=new Loop(A+'audio/流水.mp3',.24);
 const cityMarket=new Loop(A+'audio/集市.mp3',.32);
 const cues={wood:new Audio(A+'audio/04-wood-creak-synthetic.wav'),rope:new Audio(A+'audio/05-rope-friction-synthetic.wav'),vendor:new Audio(A+'audio/02-茶水吆喝-街巷节奏.wav'),wedding:new Audio(A+'audio/02-迎亲锣鼓唢呐-远景.wav')};
-let cityTimers=[],cityActive=false,marketOn=false;
+let cityTimers=[],cityActive=false,marketOn=false,audioFades=[];
 function playCue(a,vol=.2){if(!state.sound)return;const c=cues[a];if(c){c.currentTime=0;c.volume=vol;c.play().catch(()=>{});}}
 function isSailing(){return !!state.action&&(state.current===0||state.current===1&&state.phase[1]===0||state.current===3||state.current===4);}
+function fadeOutAudio(target,duration=2600){const loop=target instanceof Loop,audio=loop?target.audio:target;if(audio.paused)return;audioFades=audioFades.filter(item=>item.audio!==audio);audioFades.push({loop,audio,from:audio.volume,start:performance.now(),duration});}
+function fadeOutCity(){cityTimers.forEach(clearTimeout);cityTimers=[];cityActive=false;marketOn=false;fadeOutAudio(cityMarket);fadeOutAudio(sailingSound);fadeOutAudio(cues.vendor,1800);fadeOutAudio(cues.wedding,1800);}
 function startMarket(volume=cityMarket.vol){if(!state.sound||state.current!==1||marketOn)return;cityMarket.start(volume);marketOn=true;}
 function stopCitySound(){cityTimers.forEach(clearTimeout);cityTimers=[];cityMarket.stop();['vendor','wedding'].forEach(k=>{cues[k].pause();cues[k].currentTime=0;});cityActive=false;marketOn=false;}
 function citySound(){
- if(!state.sound||state.current!==1||cityActive||state.transition)return;
+ if(!state.sound||state.current!==1||state.completed[1]||cityActive||state.transition)return;
  cityActive=true;startMarket();
  cityTimers=[
   setTimeout(()=>playCue('wedding',.29),1800),
@@ -196,7 +199,7 @@ function citySound(){
   setInterval(()=>playCue('vendor',.26),18000)
  ];
 }
-function toggleSound(){state.sound=!state.sound;ui.soundLabel.textContent=state.sound?'关闭声音':'开启声音';ui.sound.setAttribute('aria-label',ui.soundLabel.textContent);if(state.sound){if(isSailing())sailingSound.start();if(state.current===1){if(state.transition){const weight=smooth((performance.now()-state.transition.start)/state.transition.duration);if(state.transition.from===0)sailingSound.start(sailingSound.vol*(1-weight));startMarket(cityMarket.vol*weight);}else citySound();}}else{sailingSound.stop();stopCitySound();Object.values(cues).forEach(a=>{a.pause();a.currentTime=0;});}}
+function toggleSound(){state.sound=!state.sound;ui.soundLabel.textContent=state.sound?'关闭声音':'开启声音';ui.sound.setAttribute('aria-label',ui.soundLabel.textContent);if(state.sound){if(isSailing())sailingSound.start();if(state.current===1&&!state.completed[1]){if(state.transition){const weight=smooth((performance.now()-state.transition.start)/state.transition.duration);if(state.transition.from===0)sailingSound.start(sailingSound.vol*(1-weight));startMarket(cityMarket.vol*weight);}else citySound();}}else{sailingSound.stop();stopCitySound();Object.values(cues).forEach(a=>{a.pause();a.currentTime=0;});}}
 
 function bind(){
  ui.start.onclick=()=>{if(!state.ready)return;state.started=true;ui.intro.classList.add('closed');toggleSound();state.transition={from:0,start:performance.now(),duration:950,intro:true};updateUI();};
