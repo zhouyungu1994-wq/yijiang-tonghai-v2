@@ -97,7 +97,7 @@ function navigate(i){
  if(state.action||state.transition||i<0||i>state.unlocked||i>4||i===state.current)return;
  closeCard();const snapshot=document.createElement('canvas');snapshot.width=ui.actors.width;snapshot.height=ui.actors.height;snapshot.getContext('2d').drawImage(ui.actors,0,0);
  const old=state.current;state.current=i;state.sceneStart=performance.now();state.transition={from:old,start:performance.now(),duration:3200,snapshot};
- cityTimers.forEach(clearTimeout);cityTimers=[];['port','vendor','wedding'].forEach(k=>cues[k].pause());
+ stopCitySound();
  ui.ending.classList.remove('visible');ui.ending.hidden=true;updateUI();
 }
 function replay(){if(state.action||state.transition)return;state.phase[state.current]=0;state.travel[state.current]=0;state.completed[state.current]=false;ui.ending.classList.remove('visible');ui.ending.hidden=true;state.sceneStart=performance.now();updateUI();}
@@ -166,7 +166,7 @@ function drawActors(now){
 }
 function tick(now){
  if(state.action&&progress(now)>=1)finishAction();
- if(state.transition&&now-state.transition.start>=state.transition.duration){state.transition=null;updateUI();if(state.current===4&&state.completed[4]){ui.ending.hidden=false;ui.ending.classList.add('visible');}}
+ if(state.transition&&now-state.transition.start>=state.transition.duration){state.transition=null;updateUI();if(state.current===1)citySound();if(state.current===4&&state.completed[4]){ui.ending.hidden=false;ui.ending.classList.add('visible');}}
  const t=state.transition,weight=t?smooth((now-t.start)/t.duration):1;
  [...ui.bgs.children].forEach((b,n)=>{b.style.transition='none';b.style.zIndex=n===state.current?'1':'0';b.style.opacity=n===state.current?weight:t&&n===t.from?1:0;});
  // During the dissolve use only the blended paintings, so old water never overlays incoming land.
@@ -176,10 +176,23 @@ function tick(now){
 function openCard(card){state.lastFocus=document.activeElement;ui.modalKicker.textContent=`第${['一','二','三','四','五'][state.current]}幕 · 文化笔记`;ui.modalTitle.textContent=card.title;ui.modalText.textContent=card.text;ui.modalNote.textContent=card.note||'';ui.modalNote.hidden=!card.note;ui.modalArt.style.backgroundImage=`url('${A+assets['bg'+(state.current+1)]}')`;ui.sources.replaceChildren();(card.sources||[]).forEach(s=>{const el=document.createElement(s.url?'a':'span');if(s.url){el.href=s.url;el.target='_blank';el.rel='noopener noreferrer';}el.textContent=`资料来源：${s.label}${s.url?' ↗':''}`;ui.sources.append(el);});ui.modal.hidden=false;ui.modalClose.focus();}
 function closeCard(){if(ui.modal.hidden)return;ui.modal.hidden=true;state.lastFocus?.focus?.();}
 class Loop{constructor(src,vol){this.audio=new Audio(src);this.audio.loop=true;this.audio.volume=vol;this.vol=vol;}start(){this.audio.volume=this.vol;this.audio.play().catch(()=>{});}stop(){this.audio.pause();this.audio.currentTime=0;}}
-const ambience=[new Loop(A+'audio/01-water-synthetic.wav',.13),new Loop(A+'audio/02-wind-synthetic.wav',.045)];const cues={port:new Audio(A+'audio/03-port-murmur-stylized.wav'),wood:new Audio(A+'audio/04-wood-creak-synthetic.wav'),rope:new Audio(A+'audio/05-rope-friction-synthetic.wav'),vendor:new Audio(A+'audio/叫卖-茶水.wav'),wedding:new Audio(A+'audio/迎亲吹奏-合成.wav')};let cityTimers=[];
+const ambience=[new Loop(A+'audio/01-water-synthetic.wav',.13),new Loop(A+'audio/02-wind-synthetic.wav',.045)];
+const cityCrowd=new Loop(A+'audio/02-市井人声氛围.wav',.35);
+const cues={wood:new Audio(A+'audio/04-wood-creak-synthetic.wav'),rope:new Audio(A+'audio/05-rope-friction-synthetic.wav'),vendor:new Audio(A+'audio/02-茶水吆喝-街巷节奏.wav'),wedding:new Audio(A+'audio/02-迎亲锣鼓唢呐-远景.wav')};
+let cityTimers=[],cityActive=false;
 function playCue(a,vol=.2){if(!state.sound)return;const c=cues[a];if(c){c.currentTime=0;c.volume=vol;c.play().catch(()=>{});}}
-function toggleSound(){state.sound=!state.sound;ui.soundLabel.textContent=state.sound?'关闭声音':'开启声音';ui.sound.setAttribute('aria-label',ui.soundLabel.textContent);if(state.sound){ambience.forEach(a=>a.start());if(state.current===1)citySound();}else{ambience.forEach(a=>a.stop());Object.values(cues).forEach(a=>{a.pause();a.currentTime=0;});cityTimers.forEach(clearTimeout);cityTimers=[];}}
-function citySound(){if(!state.sound||state.current!==1)return;playCue('port',.22);playCue('vendor',.26);playCue('wedding',.15);cityTimers=[setTimeout(()=>playCue('vendor',.23),8500),setTimeout(()=>playCue('wedding',.14),14500)];}
+function stopCitySound(){cityTimers.forEach(clearTimeout);cityTimers=[];cityCrowd.stop();['vendor','wedding'].forEach(k=>{cues[k].pause();cues[k].currentTime=0;});cityActive=false;}
+function citySound(){
+ if(!state.sound||state.current!==1||cityActive)return;
+ cityActive=true;cityCrowd.start();
+ cityTimers=[
+  setTimeout(()=>playCue('wedding',.29),1800),
+  setTimeout(()=>playCue('vendor',.28),4600),
+  setInterval(()=>playCue('wedding',.27),23000),
+  setInterval(()=>playCue('vendor',.26),18000)
+ ];
+}
+function toggleSound(){state.sound=!state.sound;ui.soundLabel.textContent=state.sound?'关闭声音':'开启声音';ui.sound.setAttribute('aria-label',ui.soundLabel.textContent);if(state.sound){ambience.forEach(a=>a.start());if(state.current===1)citySound();}else{ambience.forEach(a=>a.stop());stopCitySound();Object.values(cues).forEach(a=>{a.pause();a.currentTime=0;});}}
 
 function bind(){
  ui.start.onclick=()=>{if(!state.ready)return;state.started=true;ui.intro.classList.add('closed');toggleSound();state.transition={from:0,start:performance.now(),duration:950,intro:true};updateUI();};
