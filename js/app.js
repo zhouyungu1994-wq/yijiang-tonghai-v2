@@ -188,7 +188,7 @@ function tick(now){
  if(state.current===1&&state.sound&&!state.completed[1]&&!state.transition){
   const voice=cues.vendor,remaining=Number.isFinite(voice.duration)?voice.duration-voice.currentTime:Infinity;
   const voiceLevel=voice.paused?0:smooth(voice.currentTime/.7)*smooth(remaining/.9);
-  voice.volume=.22*voiceLevel;
+  voice.volume=.15*voiceLevel;
   if(marketOn)cityMarket.audio.volume=lerp(cityMarket.audio.volume,cityMarket.vol*(1-.18*voiceLevel),.12);
  }
  if(state.current===1&&state.sound&&wedding.start!==null){const level=weddingMusicLevel(now);cues.wedding.volume=.24*level;if(level===0&&!cues.wedding.paused){cues.wedding.pause();cues.wedding.currentTime=0;}}
@@ -220,7 +220,7 @@ function citySound(){
  if(!state.sound||state.current!==1||state.completed[1]||cityActive||state.transition)return;
  cityActive=true;startMarket();
  cityTimers=[
-  setTimeout(()=>{playVendor();cityTimers.push(setInterval(playVendor,18000));},Math.max(0,3600-(performance.now()-state.sceneStart)))
+  setTimeout(playVendor,Math.max(0,5000-(performance.now()-state.sceneStart)))
  ];
  startWeddingAudio();
 }
