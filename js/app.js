@@ -80,8 +80,8 @@ function updateUI(){
 }
 function progress(now){return state.action?Math.max(0,Math.min(1,(now-state.action.start)/state.action.duration)):state.travel[state.current];}
 function complete(){const i=state.current;state.travel[i]=1;state.completed[i]=true;if(i<4)state.unlocked=Math.max(state.unlocked,i+1);state.action=null;updateUI();if(i===4){ui.ending.hidden=false;requestAnimationFrame(()=>ui.ending.classList.add('visible'));}}
-function runAction(label,duration,callback){if(state.action||state.transition)return;state.action={label,duration,start:performance.now(),callback};updateUI();}
-function finishAction(){if(!state.action)return;const fn=state.action.callback;state.travel[state.current]=1;state.action=null;fn();}
+function runAction(label,duration,callback){if(state.action||state.transition)return;state.action={label,duration,start:performance.now(),callback};if(state.sound&&isSailing())sailingSound.start();updateUI();}
+function finishAction(){if(!state.action)return;const fn=state.action.callback;state.travel[state.current]=1;state.action=null;sailingSound.stop();fn();}
 function perform(){
  if(!state.started||!state.ready||state.action||state.transition||!ui.modal.hidden||state.completed[state.current])return;
  const i=state.current;
@@ -97,7 +97,7 @@ function navigate(i){
  if(state.action||state.transition||i<0||i>state.unlocked||i>4||i===state.current)return;
  closeCard();const snapshot=document.createElement('canvas');snapshot.width=ui.actors.width;snapshot.height=ui.actors.height;snapshot.getContext('2d').drawImage(ui.actors,0,0);
  const old=state.current;state.current=i;state.sceneStart=performance.now();state.transition={from:old,start:performance.now(),duration:3200,snapshot};
- stopCitySound();
+ stopCitySound();sailingSound.stop();
  ui.ending.classList.remove('visible');ui.ending.hidden=true;updateUI();
 }
 function replay(){if(state.action||state.transition)return;state.phase[state.current]=0;state.travel[state.current]=0;state.completed[state.current]=false;ui.ending.classList.remove('visible');ui.ending.hidden=true;state.sceneStart=performance.now();updateUI();}
@@ -176,11 +176,12 @@ function tick(now){
 function openCard(card){state.lastFocus=document.activeElement;ui.modalKicker.textContent=`第${['一','二','三','四','五'][state.current]}幕 · 文化笔记`;ui.modalTitle.textContent=card.title;ui.modalText.textContent=card.text;ui.modalNote.textContent=card.note||'';ui.modalNote.hidden=!card.note;ui.modalArt.style.backgroundImage=`url('${A+assets['bg'+(state.current+1)]}')`;ui.sources.replaceChildren();(card.sources||[]).forEach(s=>{const el=document.createElement(s.url?'a':'span');if(s.url){el.href=s.url;el.target='_blank';el.rel='noopener noreferrer';}el.textContent=`资料来源：${s.label}${s.url?' ↗':''}`;ui.sources.append(el);});ui.modal.hidden=false;ui.modalClose.focus();}
 function closeCard(){if(ui.modal.hidden)return;ui.modal.hidden=true;state.lastFocus?.focus?.();}
 class Loop{constructor(src,vol){this.audio=new Audio(src);this.audio.loop=true;this.audio.volume=vol;this.vol=vol;}start(){this.audio.volume=this.vol;this.audio.play().catch(()=>{});}stop(){this.audio.pause();this.audio.currentTime=0;}}
-const ambience=[new Loop(A+'audio/01-water-synthetic.wav',.13),new Loop(A+'audio/02-wind-synthetic.wav',.045)];
+const sailingSound=new Loop(A+'audio/流水.mp3',.24);
 const cityCrowd=new Loop(A+'audio/02-市井人声氛围.wav',.35);
 const cues={wood:new Audio(A+'audio/04-wood-creak-synthetic.wav'),rope:new Audio(A+'audio/05-rope-friction-synthetic.wav'),vendor:new Audio(A+'audio/02-茶水吆喝-街巷节奏.wav'),wedding:new Audio(A+'audio/02-迎亲锣鼓唢呐-远景.wav')};
 let cityTimers=[],cityActive=false;
 function playCue(a,vol=.2){if(!state.sound)return;const c=cues[a];if(c){c.currentTime=0;c.volume=vol;c.play().catch(()=>{});}}
+function isSailing(){return !!state.action&&(state.current===0||state.current===1&&state.phase[1]===0||state.current===3||state.current===4);}
 function stopCitySound(){cityTimers.forEach(clearTimeout);cityTimers=[];cityCrowd.stop();['vendor','wedding'].forEach(k=>{cues[k].pause();cues[k].currentTime=0;});cityActive=false;}
 function citySound(){
  if(!state.sound||state.current!==1||cityActive)return;
@@ -192,7 +193,7 @@ function citySound(){
   setInterval(()=>playCue('vendor',.26),18000)
  ];
 }
-function toggleSound(){state.sound=!state.sound;ui.soundLabel.textContent=state.sound?'关闭声音':'开启声音';ui.sound.setAttribute('aria-label',ui.soundLabel.textContent);if(state.sound){ambience.forEach(a=>a.start());if(state.current===1)citySound();}else{ambience.forEach(a=>a.stop());stopCitySound();Object.values(cues).forEach(a=>{a.pause();a.currentTime=0;});}}
+function toggleSound(){state.sound=!state.sound;ui.soundLabel.textContent=state.sound?'关闭声音':'开启声音';ui.sound.setAttribute('aria-label',ui.soundLabel.textContent);if(state.sound){if(isSailing())sailingSound.start();if(state.current===1)citySound();}else{sailingSound.stop();stopCitySound();Object.values(cues).forEach(a=>{a.pause();a.currentTime=0;});}}
 
 function bind(){
  ui.start.onclick=()=>{if(!state.ready)return;state.started=true;ui.intro.classList.add('closed');toggleSound();state.transition={from:0,start:performance.now(),duration:950,intro:true};updateUI();};
