@@ -6,9 +6,9 @@ const FEATURES=[
 ];
 
 export class ShipInspection{
- constructor({soundEnabled,toggleSound,onOpen,onClose}){
-  Object.assign(this,{soundEnabled,toggleSound,onOpen,onClose});this.isOpen=false;this.closing=false;this.seen=new Set();
-  this.audio=new Audio('assets/audio/流水.mp3');this.audio.loop=true;this.audio.volume=0;
+ constructor({soundEnabled,toggleSound,onOpen,onClose,sceneAudio=false}){
+  Object.assign(this,{soundEnabled,toggleSound,onOpen,onClose,sceneAudio});this.isOpen=false;this.closing=false;this.seen=new Set();
+  this.audio=sceneAudio?null:new Audio('assets/audio/流水.mp3');if(this.audio){this.audio.loop=true;this.audio.volume=0;}
   this.root=document.createElement('div');this.root.className='ship-backdrop';this.root.hidden=true;
   this.root.innerHTML=`<section class="ship-sheet" role="dialog" aria-modal="true" aria-labelledby="shipTitle" tabindex="-1">
    <button class="ship-close" type="button" aria-label="关闭船舶观察">×</button>
@@ -29,7 +29,7 @@ export class ShipInspection{
  }
  select(i){this.selected=i;this.seen.add(i);const f=FEATURES[i];this.root.querySelectorAll('[data-feature]').forEach(b=>{b.setAttribute('aria-pressed',String(+b.dataset.feature===i));b.classList.toggle('seen',this.seen.has(+b.dataset.feature));});this.root.querySelector('.ship-feature-tag').textContent=f.tag;this.root.querySelector('.ship-feature h3').textContent=f.title;this.root.querySelector('.ship-feature-copy').textContent=f.text;const marker=this.root.querySelector('.ship-marker');marker.hidden=f.x===null;if(f.x!==null){marker.style.left=f.x+'%';marker.style.top=f.y+'%';}this.root.querySelector('.ship-progress').textContent=`已观察 ${this.seen.size} / 4 处`;this.root.querySelector('.ship-next').textContent=i===3?'再看桅帆 ↺':'下一处 →';}
  open(){if(this.isOpen)return;this.isOpen=true;this.closing=false;this.lastFocus=document.activeElement;this.oldOverflow=document.body.style.overflow;document.body.style.overflow='hidden';this.seen.clear();this.select(0);this.root.querySelector('.ship-sources').open=false;this.root.hidden=false;this.onOpen();requestAnimationFrame(()=>{if(this.isOpen&&!this.closing)this.root.classList.add('visible');});this.root.querySelector('.ship-close').focus();this.syncSound();}
- fadeSound(to,duration,stop=false){cancelAnimationFrame(this.audioFrame);const from=this.audio.volume,start=performance.now();const frame=now=>{const t=Math.max(0,Math.min(1,(now-start)/duration)),s=t*t*(3-2*t);this.audio.volume=from+(to-from)*s;if(t<1)this.audioFrame=requestAnimationFrame(frame);else if(stop){this.audio.pause();this.audio.currentTime=0;}};this.audioFrame=requestAnimationFrame(frame);}
- syncSound(){this.root.querySelector('.ship-audio').textContent=this.soundEnabled()?'关闭流水声':'开启流水声';if(!this.isOpen)return;if(this.soundEnabled()&&!this.closing){this.audio.play().then(()=>{if(this.isOpen&&!this.closing&&this.soundEnabled())this.fadeSound(.22,1200);else this.audio.pause();}).catch(()=>{});}else this.fadeSound(0,this.closing?900:400,true);}
+ fadeSound(to,duration,stop=false){if(this.sceneAudio)return;cancelAnimationFrame(this.audioFrame);const from=this.audio.volume,start=performance.now();const frame=now=>{const t=Math.max(0,Math.min(1,(now-start)/duration)),s=t*t*(3-2*t);this.audio.volume=from+(to-from)*s;if(t<1)this.audioFrame=requestAnimationFrame(frame);else if(stop){this.audio.pause();this.audio.currentTime=0;}};this.audioFrame=requestAnimationFrame(frame);}
+ syncSound(){this.root.querySelector('.ship-audio').textContent=this.soundEnabled()?'关闭流水声':'开启流水声';if(this.sceneAudio||!this.isOpen)return;if(this.soundEnabled()&&!this.closing){this.audio.play().then(()=>{if(this.isOpen&&!this.closing&&this.soundEnabled())this.fadeSound(.22,1200);else this.audio.pause();}).catch(()=>{});}else this.fadeSound(0,this.closing?900:400,true);}
  close(){if(!this.isOpen||this.closing)return;this.closing=true;this.root.classList.remove('visible');this.fadeSound(0,900,true);setTimeout(()=>{this.root.hidden=true;this.isOpen=false;this.closing=false;document.body.style.overflow=this.oldOverflow;this.onClose();this.lastFocus?.focus?.();},650);}
 }

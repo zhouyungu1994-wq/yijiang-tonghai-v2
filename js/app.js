@@ -1,5 +1,5 @@
 import {smooth,lerp,cargoPose,portPose} from './motion.js?v=20261012-11';
-import {ShipInspection} from './ship-inspection.js?v=20261014-2';
+import {ShipInspection} from './ship-inspection.js?v=20261014-8';
 const A='assets/';
 const SOURCES={
  river:{label:'浙江省交通运输厅｜温州—丽水海河联运启航（2024）',url:'https://jtyst.zj.gov.cn/art/2024/12/27/art_1229304975_59039943.html'},
@@ -39,7 +39,7 @@ const ui={stage:byId('stage'),nav:byId('chapterNav'),bgs:byId('backgrounds'),act
 
 const state={current:0,unlocked:0,phase:[0,0,0,0,0],completed:[false,false,false,false,false],travel:[0,0,0,0,0],started:false,ready:false,sound:false,action:null,transition:null,lastFocus:null,sceneStart:performance.now()};
 let shipPausedAt=null;
-const shipInspection=new ShipInspection({soundEnabled:()=>state.sound,toggleSound:()=>toggleSound(),onOpen(){shipPausedAt=performance.now();},onClose(){if(state.action&&shipPausedAt!==null)state.action.start+=performance.now()-shipPausedAt;shipPausedAt=null;ui.stage.querySelector('[data-ship]')?.classList.add('observed');updateUI();}});
+const shipInspection=new ShipInspection({sceneAudio:true,soundEnabled:()=>state.sound,toggleSound:()=>toggleSound(),onOpen(){shipPausedAt=performance.now();},onClose(){if(state.action&&shipPausedAt!==null)state.action.start+=performance.now()-shipPausedAt;shipPausedAt=null;ui.stage.querySelector('[data-ship]')?.classList.add('observed');updateUI();}});
 let water={update(){}};
 const images={};
 const WEDDING_FADE=3200;
@@ -99,7 +99,7 @@ function updateUI(){
  ui.stage.classList.toggle('transitioning',!!state.transition);hotspots();
 }
 function progress(now){return state.action?Math.max(0,Math.min(1,(now-state.action.start)/state.action.duration)):state.travel[state.current];}
-function complete(){const i=state.current;state.travel[i]=1;state.completed[i]=true;if(i<4)state.unlocked=Math.max(state.unlocked,i+1);state.action=null;if(i===1){cues.wedding.pause();cues.wedding.currentTime=0;fadeOutCity();}updateUI();if(i===4){ui.ending.hidden=false;requestAnimationFrame(()=>ui.ending.classList.add('visible'));}}
+function complete(){const i=state.current;state.travel[i]=1;state.completed[i]=true;if(i<4)state.unlocked=Math.max(state.unlocked,i+1);state.action=null;if(i===1){cues.wedding.pause();cues.wedding.currentTime=0;fadeOutCity();}if(i===2)fadeOutAudio(thirdWater);updateUI();if(i===4){ui.ending.hidden=false;requestAnimationFrame(()=>ui.ending.classList.add('visible'));}}
 function runAction(label,duration,callback){if(state.action||state.transition)return;state.action={label,duration,start:performance.now(),callback};if(state.sound&&isSailing())sailingSound.start();updateUI();}
 function finishAction(){if(!state.action)return;const from=state.current,fn=state.action.callback,keepDockWater=from===1;state.travel[from]=1;state.action=null;if(from!==0&&!keepDockWater)sailingSound.stop();fn();if(from===0&&!state.transition)sailingSound.stop();}
 function perform(){
@@ -119,9 +119,10 @@ function navigate(i){
  const old=state.current;state.current=i;state.sceneStart=performance.now();state.transition={from:old,start:performance.now(),duration:3200,snapshot};
  stopCitySound();if(!(old===0&&i===1))sailingSound.stop();
  if(i===1&&state.sound)startMarket(0);
+ thirdWater.stop();if(i===2)startThirdWater();
  ui.ending.classList.remove('visible');ui.ending.hidden=true;updateUI();
 }
-function replay(){if(state.action||state.transition)return;state.phase[state.current]=0;state.travel[state.current]=0;state.completed[state.current]=false;state.sceneStart=performance.now();if(state.current===1){stopCitySound();sailingSound.stop();wedding={start:null};citySound();}ui.ending.classList.remove('visible');ui.ending.hidden=true;updateUI();}
+function replay(){if(state.action||state.transition)return;state.phase[state.current]=0;state.travel[state.current]=0;state.completed[state.current]=false;state.sceneStart=performance.now();if(state.current===1){stopCitySound();sailingSound.stop();wedding={start:null};citySound();}if(state.current===2){thirdWater.stop();startThirdWater();}ui.ending.classList.remove('visible');ui.ending.hidden=true;updateUI();}
 function drawAtlas(ctx,key,col,row,cols,rows,x,y,w,h,alpha=1,flip=false){const im=images[key];if(!im)return;const sw=im.width/cols,sh=im.height/rows;ctx.save();ctx.globalAlpha*=alpha;ctx.translate(x,y);if(flip)ctx.scale(-1,1);ctx.drawImage(im,col*sw,row*sh,sw,sh,-w/2,-h,w,h);ctx.restore();}
 function drawBoat(ctx,key,cx,base,w,h,alpha=1,moving=false){
  const im=images[key];if(!im)return;ctx.save();ctx.globalAlpha*=alpha;ctx.translate(cx,base);
@@ -188,11 +189,11 @@ function drawActors(now){
 }
 function tick(now){
  if(!shipInspection.isOpen&&state.action&&progress(now)>=1)finishAction();
- for(let n=audioFades.length-1;n>=0;n--){const fade=audioFades[n],amount=Math.max(0,Math.min(1,(now-fade.start)/fade.duration));fade.audio.volume=fade.from*(1-smooth(amount));if(amount>=1){fade.audio.pause();fade.audio.currentTime=0;audioFades.splice(n,1);}}
+ for(let n=audioFades.length-1;n>=0;n--){const fade=audioFades[n],amount=Math.max(0,Math.min(1,(now-fade.start)/fade.duration));fade.audio.volume=fade.from+((fade.to??0)-fade.from)*smooth(amount);if(amount>=1){if((fade.to??0)===0){fade.audio.pause();fade.audio.currentTime=0;}audioFades.splice(n,1);}}
  if(state.current===1&&state.sound&&!state.completed[1]&&!state.transition){
   const voice=cues.vendor,remaining=Number.isFinite(voice.duration)?voice.duration-voice.currentTime:Infinity;
   const voiceLevel=voice.paused?0:smooth(voice.currentTime/.7)*smooth(remaining/.9);
-  voice.volume=.06*voiceLevel;
+  voice.volume=.08*voiceLevel;
   if(marketOn)cityMarket.audio.volume=lerp(cityMarket.audio.volume,cityMarket.vol*(1-.28*voiceLevel),.12);
  }
  if(state.current===1&&state.sound&&wedding.start!==null){const level=weddingMusicLevel(now);cues.wedding.volume=.24*level;if(level===0&&!cues.wedding.paused){cues.wedding.pause();cues.wedding.currentTime=0;}}
@@ -208,6 +209,8 @@ function openCard(card){state.lastFocus=document.activeElement;ui.modalKicker.te
 function closeCard(){if(ui.modal.hidden)return;ui.modal.hidden=true;state.lastFocus?.focus?.();}
 class Loop{constructor(src,vol){this.audio=new Audio(src);this.audio.loop=true;this.audio.volume=vol;this.vol=vol;}start(initialVolume=this.vol){audioFades=audioFades.filter(f=>f.audio!==this.audio);this.audio.volume=initialVolume;this.audio.play().catch(()=>{});}stop(){audioFades=audioFades.filter(f=>f.audio!==this.audio);this.audio.pause();this.audio.currentTime=0;}}
 const sailingSound=new Loop(A+'audio/流水.mp3',.24);
+const thirdWater=new Loop(A+'audio/流水.mp3',.24);
+function startThirdWater(){if(!state.sound||state.current!==2||state.completed[2]||!thirdWater.audio.paused)return;thirdWater.start(0);audioFades.push({audio:thirdWater.audio,from:0,to:thirdWater.vol,start:performance.now(),duration:1800});}
 const cityMarket=new Loop(A+'audio/集市.mp3',.32);
 const cues={wood:new Audio(A+'audio/04-wood-creak-synthetic.wav'),rope:new Audio(A+'audio/05-rope-friction-synthetic.wav'),vendor:new Audio(A+'audio/吃茶来-自然版-第二句快接.mp3'),wedding:new Audio(A+'audio/娶亲.mp3')};
 cues.wedding.loop=true;
@@ -228,7 +231,7 @@ function citySound(){
  ];
  startWeddingAudio();
 }
-function toggleSound(){state.sound=!state.sound;ui.soundLabel.textContent=state.sound?'关闭声音':'开启声音';ui.sound.setAttribute('aria-label',ui.soundLabel.textContent);if(state.sound){if(isSailing())sailingSound.start();if(state.current===1&&!state.completed[1]){if(state.transition){const weight=smooth((performance.now()-state.transition.start)/state.transition.duration);if(state.transition.from===0)sailingSound.start(sailingSound.vol*(1-weight));startMarket(cityMarket.vol*weight);}else citySound();}}else{sailingSound.stop();stopCitySound();Object.values(cues).forEach(a=>{a.pause();a.currentTime=0;});}shipInspection.syncSound();}
+function toggleSound(){state.sound=!state.sound;ui.soundLabel.textContent=state.sound?'关闭声音':'开启声音';ui.sound.setAttribute('aria-label',ui.soundLabel.textContent);if(state.sound){startThirdWater();if(isSailing())sailingSound.start();if(state.current===1&&!state.completed[1]){if(state.transition){const weight=smooth((performance.now()-state.transition.start)/state.transition.duration);if(state.transition.from===0)sailingSound.start(sailingSound.vol*(1-weight));startMarket(cityMarket.vol*weight);}else citySound();}}else{thirdWater.stop();sailingSound.stop();stopCitySound();Object.values(cues).forEach(a=>{a.pause();a.currentTime=0;});}shipInspection.syncSound();}
 
 function bind(){
  ui.start.onclick=()=>{if(!state.ready)return;state.started=true;ui.intro.classList.add('closed');toggleSound();state.transition={from:0,start:performance.now(),duration:950,intro:true};updateUI();};
