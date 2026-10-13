@@ -1,4 +1,5 @@
 import {smooth,lerp,cargoPose,portPose} from './motion.js?v=20261012-11';
+import {ShipInspection} from './ship-inspection.js?v=20261014-2';
 const A='assets/';
 const SOURCES={
  river:{label:'浙江省交通运输厅｜温州—丽水海河联运启航（2024）',url:'https://jtyst.zj.gov.cn/art/2024/12/27/art_1229304975_59039943.html'},
@@ -37,6 +38,8 @@ const byId=id=>document.getElementById(id);
 const ui={stage:byId('stage'),nav:byId('chapterNav'),bgs:byId('backgrounds'),actors:byId('actorsCanvas'),count:byId('sceneCount'),eyebrow:byId('chapterEyebrow'),title:byId('chapterTitle'),lead:byId('chapterLead'),status:byId('actionStatus'),primary:byId('primaryButton'),prev:byId('previousButton'),next:byId('nextButton'),skip:byId('skipButton'),replay:byId('replayButton'),knowledge:byId('knowledgeButton'),modal:byId('modalBackdrop'),modalClose:byId('modalClose'),modalArt:byId('modalArt'),modalKicker:byId('modalKicker'),modalTitle:byId('modalTitle'),modalText:byId('modalText'),modalNote:byId('modalNote'),sources:byId('modalSources'),intro:byId('intro'),start:byId('startButton'),sound:byId('soundButton'),soundLabel:byId('soundLabel'),ending:byId('ending')};
 
 const state={current:0,unlocked:0,phase:[0,0,0,0,0],completed:[false,false,false,false,false],travel:[0,0,0,0,0],started:false,ready:false,sound:false,action:null,transition:null,lastFocus:null,sceneStart:performance.now()};
+let shipPausedAt=null;
+const shipInspection=new ShipInspection({soundEnabled:()=>state.sound,toggleSound:()=>toggleSound(),onOpen(){shipPausedAt=performance.now();},onClose(){if(state.action&&shipPausedAt!==null)state.action.start+=performance.now()-shipPausedAt;shipPausedAt=null;ui.stage.querySelector('[data-ship]')?.classList.add('observed');updateUI();}});
 let water={update(){}};
 const images={};
 const WEDDING_FADE=3200;
@@ -79,8 +82,9 @@ function hotspots(){
  layer.hidden=!state.started||!state.ready||!!state.transition||(state.current===4&&state.completed[4]);
  if(layer.dataset.scene!==String(state.current)){
   layer.dataset.scene=state.current;
-  layer.innerHTML=SCENES[state.current].hotspots.map((h,i)=>`<button class="hotspot" type="button" data-hot="${i}" style="left:${h.x}%;top:${h.y}%"><span class="hotspot-icon">${h.icon}</span>${h.label}</button>`).join('');
+  layer.innerHTML=SCENES[state.current].hotspots.map((h,i)=>`<button class="hotspot" type="button" data-hot="${i}" style="left:${h.x}%;top:${h.y}%"><span class="hotspot-icon">${h.icon}</span>${h.label}</button>`).join('')+(state.current===2?'<button class="ship-ripple" type="button" data-ship aria-label="点击船，观察王振鹏画中的船舶"><i aria-hidden="true"></i><span>点船观形</span></button>':'');
   layer.querySelectorAll('[data-hot]').forEach(b=>b.onclick=()=>openCard(SCENES[state.current].hotspots[+b.dataset.hot]));
+  const shipButton=layer.querySelector('[data-ship]');if(shipButton)shipButton.onclick=()=>shipInspection.open();
  }
 }
 function updateUI(){
@@ -99,7 +103,7 @@ function complete(){const i=state.current;state.travel[i]=1;state.completed[i]=t
 function runAction(label,duration,callback){if(state.action||state.transition)return;state.action={label,duration,start:performance.now(),callback};if(state.sound&&isSailing())sailingSound.start();updateUI();}
 function finishAction(){if(!state.action)return;const from=state.current,fn=state.action.callback,keepDockWater=from===1;state.travel[from]=1;state.action=null;if(from!==0&&!keepDockWater)sailingSound.stop();fn();if(from===0&&!state.transition)sailingSound.stop();}
 function perform(){
- if(!state.started||!state.ready||state.action||state.transition||!ui.modal.hidden||state.completed[state.current])return;
+ if(!state.started||!state.ready||state.action||state.transition||!ui.modal.hidden||shipInspection.isOpen||state.completed[state.current])return;
  const i=state.current;
  if(i===0)runAction('小舟向右启程…',8500,()=>{complete();navigate(1);});
  else if(i===1){
@@ -110,7 +114,7 @@ function perform(){
  else runAction('船帆渐远，驶向江海…',20000,complete);
 }
 function navigate(i){
- if(state.action||state.transition||i<0||i>state.unlocked||i>4||i===state.current)return;
+ if(state.action||state.transition||shipInspection.isOpen||i<0||i>state.unlocked||i>4||i===state.current)return;
  closeCard();const snapshot=document.createElement('canvas');snapshot.width=ui.actors.width;snapshot.height=ui.actors.height;snapshot.getContext('2d').drawImage(ui.actors,0,0);
  const old=state.current;state.current=i;state.sceneStart=performance.now();state.transition={from:old,start:performance.now(),duration:3200,snapshot};
  stopCitySound();if(!(old===0&&i===1))sailingSound.stop();
@@ -183,12 +187,12 @@ function drawActors(now){
  ctx.restore();
 }
 function tick(now){
- if(state.action&&progress(now)>=1)finishAction();
+ if(!shipInspection.isOpen&&state.action&&progress(now)>=1)finishAction();
  for(let n=audioFades.length-1;n>=0;n--){const fade=audioFades[n],amount=Math.max(0,Math.min(1,(now-fade.start)/fade.duration));fade.audio.volume=fade.from*(1-smooth(amount));if(amount>=1){fade.audio.pause();fade.audio.currentTime=0;audioFades.splice(n,1);}}
  if(state.current===1&&state.sound&&!state.completed[1]&&!state.transition){
   const voice=cues.vendor,remaining=Number.isFinite(voice.duration)?voice.duration-voice.currentTime:Infinity;
   const voiceLevel=voice.paused?0:smooth(voice.currentTime/.7)*smooth(remaining/.9);
-  voice.volume=.10*voiceLevel;
+  voice.volume=.06*voiceLevel;
   if(marketOn)cityMarket.audio.volume=lerp(cityMarket.audio.volume,cityMarket.vol*(1-.28*voiceLevel),.12);
  }
  if(state.current===1&&state.sound&&wedding.start!==null){const level=weddingMusicLevel(now);cues.wedding.volume=.24*level;if(level===0&&!cues.wedding.paused){cues.wedding.pause();cues.wedding.currentTime=0;}}
@@ -198,7 +202,7 @@ function tick(now){
  [...ui.bgs.children].forEach((b,n)=>{b.style.transition='none';b.style.zIndex=n===state.current?'1':'0';b.style.opacity=n===state.current?weight:t&&n===t.from?1:0;});
  // During the dissolve use only the blended paintings, so old water never overlays incoming land.
  water.update(now/1000,state.current,-1,t?0:1);
- drawActors(now);requestAnimationFrame(tick);
+ drawActors(shipPausedAt??now);requestAnimationFrame(tick);
 }
 function openCard(card){state.lastFocus=document.activeElement;ui.modalKicker.textContent=`第${['一','二','三','四','五'][state.current]}幕 · 文化笔记`;ui.modalTitle.textContent=card.title;ui.modalText.textContent=card.text;ui.modalNote.textContent=card.note||'';ui.modalNote.hidden=!card.note;ui.modalArt.style.backgroundImage=`url('${A+assets['bg'+(state.current+1)]}')`;ui.sources.replaceChildren();(card.sources||[]).forEach(s=>{const el=document.createElement(s.url?'a':'span');if(s.url){el.href=s.url;el.target='_blank';el.rel='noopener noreferrer';}el.textContent=`资料来源：${s.label}${s.url?' ↗':''}`;ui.sources.append(el);});ui.modal.hidden=false;ui.modalClose.focus();}
 function closeCard(){if(ui.modal.hidden)return;ui.modal.hidden=true;state.lastFocus?.focus?.();}
@@ -224,12 +228,12 @@ function citySound(){
  ];
  startWeddingAudio();
 }
-function toggleSound(){state.sound=!state.sound;ui.soundLabel.textContent=state.sound?'关闭声音':'开启声音';ui.sound.setAttribute('aria-label',ui.soundLabel.textContent);if(state.sound){if(isSailing())sailingSound.start();if(state.current===1&&!state.completed[1]){if(state.transition){const weight=smooth((performance.now()-state.transition.start)/state.transition.duration);if(state.transition.from===0)sailingSound.start(sailingSound.vol*(1-weight));startMarket(cityMarket.vol*weight);}else citySound();}}else{sailingSound.stop();stopCitySound();Object.values(cues).forEach(a=>{a.pause();a.currentTime=0;});}}
+function toggleSound(){state.sound=!state.sound;ui.soundLabel.textContent=state.sound?'关闭声音':'开启声音';ui.sound.setAttribute('aria-label',ui.soundLabel.textContent);if(state.sound){if(isSailing())sailingSound.start();if(state.current===1&&!state.completed[1]){if(state.transition){const weight=smooth((performance.now()-state.transition.start)/state.transition.duration);if(state.transition.from===0)sailingSound.start(sailingSound.vol*(1-weight));startMarket(cityMarket.vol*weight);}else citySound();}}else{sailingSound.stop();stopCitySound();Object.values(cues).forEach(a=>{a.pause();a.currentTime=0;});}shipInspection.syncSound();}
 
 function bind(){
  ui.start.onclick=()=>{if(!state.ready)return;state.started=true;ui.intro.classList.add('closed');toggleSound();state.transition={from:0,start:performance.now(),duration:950,intro:true};updateUI();};
  ui.sound.onclick=toggleSound;ui.primary.onclick=perform;ui.prev.onclick=()=>navigate(state.current-1);ui.next.onclick=()=>navigate(state.current+1);ui.skip.onclick=finishAction;ui.replay.onclick=replay;ui.knowledge.onclick=()=>openCard(SCENES[state.current].card);ui.modalClose.onclick=closeCard;ui.modal.onclick=e=>{if(e.target===ui.modal)closeCard();};
- document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeCard();return;}if(!state.started||!ui.modal.hidden||state.action||state.transition)return;if(e.key==='ArrowLeft')navigate(state.current-1);if(e.key==='ArrowRight')navigate(state.current+1);});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeCard();return;}if(!state.started||!ui.modal.hidden||shipInspection.isOpen||state.action||state.transition)return;if(e.key==='ArrowLeft')navigate(state.current-1);if(e.key==='ArrowRight')navigate(state.current+1);});
  let start=null;ui.stage.addEventListener('pointerdown',e=>{if(e.target.closest('button'))return;start={x:e.clientX,y:e.clientY};});ui.stage.addEventListener('pointerup',e=>{if(!start||!state.started||state.action||state.transition)return;const dx=e.clientX-start.x,dy=e.clientY-start.y;start=null;if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.4)navigate(state.current+(dx<0?1:-1));});
  document.addEventListener('visibilitychange',()=>{if(document.hidden&&state.sound)toggleSound();});
 }
