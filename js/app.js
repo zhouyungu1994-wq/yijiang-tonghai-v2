@@ -40,7 +40,9 @@ const state={current:0,unlocked:0,phase:[0,0,0,0,0],completed:[false,false,false
 let water={update(){}};
 const images={};
 const WEDDING_FADE=3200;
-let wedding={start:null,end:null,endAlpha:1};
+const WEDDING_MUSIC_FADE_START=22500;
+const WEDDING_MUSIC_FADE_DURATION=2000;
+let wedding={start:null};
 const assets={boat1:'ships/01-向右货舟.png',boat2:'ships/02-靠岸货船.png',boat4:'ships/04-行航帆船.png',boat5:'ships/05-远行海船.png',distantBoat:'ships/05-远处双帆小舟.png',small:'ships/04-小舟.png',wake:'sprites/船行水纹.png',workers:'sprites/02-空手与搬货-4列2行.png',loaders:'sprites/03-装卸-4列2行.png'};
 for(let i=1;i<=5;i++)assets['bg'+i]=`backgrounds/0${i}-净底图.png`;
 assets.cityClean='backgrounds/02-迎亲空街.png';
@@ -52,9 +54,9 @@ function prepareWeddingLayers(){
  const base=make(),ctx=base.getContext('2d');ctx.drawImage(original,0,0);ctx.drawImage(masked(images.cityClean),0,0);images.bg2=base;
  ui.bgs.children[1].src=base.toDataURL('image/png');
 }
-function weddingOpacity(now){if(wedding.start===null)return 0;if(wedding.end!==null)return wedding.endAlpha*(1-smooth((now-wedding.end)/WEDDING_FADE));return smooth((now-wedding.start)/WEDDING_FADE);}
-function beginWedding(){wedding={start:performance.now(),end:null,endAlpha:1};startWeddingAudio();}
-function endWedding(){const now=performance.now();wedding.endAlpha=weddingOpacity(now);wedding.end=now;}
+function weddingOpacity(now){return wedding.start===null?0:smooth((now-wedding.start)/WEDDING_FADE);}
+function weddingMusicLevel(now){if(wedding.start===null||state.completed[1])return 0;return weddingOpacity(now)*(1-smooth((now-wedding.start-WEDDING_MUSIC_FADE_START)/WEDDING_MUSIC_FADE_DURATION));}
+function beginWedding(){wedding={start:performance.now()};startWeddingAudio();}
 function loadImage(key,path){return new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>{
  if(key==='distantBoat'){
   const sprite=document.createElement('canvas');sprite.width=im.width;sprite.height=im.height;
@@ -93,7 +95,7 @@ function updateUI(){
  ui.stage.classList.toggle('transitioning',!!state.transition);hotspots();
 }
 function progress(now){return state.action?Math.max(0,Math.min(1,(now-state.action.start)/state.action.duration)):state.travel[state.current];}
-function complete(){const i=state.current;state.travel[i]=1;state.completed[i]=true;if(i<4)state.unlocked=Math.max(state.unlocked,i+1);state.action=null;if(i===1){endWedding();fadeOutCity();}updateUI();if(i===4){ui.ending.hidden=false;requestAnimationFrame(()=>ui.ending.classList.add('visible'));}}
+function complete(){const i=state.current;state.travel[i]=1;state.completed[i]=true;if(i<4)state.unlocked=Math.max(state.unlocked,i+1);state.action=null;if(i===1){cues.wedding.pause();cues.wedding.currentTime=0;fadeOutCity();}updateUI();if(i===4){ui.ending.hidden=false;requestAnimationFrame(()=>ui.ending.classList.add('visible'));}}
 function runAction(label,duration,callback){if(state.action||state.transition)return;state.action={label,duration,start:performance.now(),callback};if(state.sound&&isSailing())sailingSound.start();updateUI();}
 function finishAction(){if(!state.action)return;const from=state.current,fn=state.action.callback,keepDockWater=from===1;state.travel[from]=1;state.action=null;if(from!==0&&!keepDockWater)sailingSound.stop();fn();if(from===0&&!state.transition)sailingSound.stop();}
 function perform(){
@@ -115,7 +117,7 @@ function navigate(i){
  if(i===1&&state.sound)startMarket(0);
  ui.ending.classList.remove('visible');ui.ending.hidden=true;updateUI();
 }
-function replay(){if(state.action||state.transition)return;state.phase[state.current]=0;state.travel[state.current]=0;state.completed[state.current]=false;if(state.current===1){stopCitySound();sailingSound.stop();wedding={start:null,end:null,endAlpha:1};citySound();}ui.ending.classList.remove('visible');ui.ending.hidden=true;state.sceneStart=performance.now();updateUI();}
+function replay(){if(state.action||state.transition)return;state.phase[state.current]=0;state.travel[state.current]=0;state.completed[state.current]=false;if(state.current===1){stopCitySound();sailingSound.stop();wedding={start:null};citySound();}ui.ending.classList.remove('visible');ui.ending.hidden=true;state.sceneStart=performance.now();updateUI();}
 function drawAtlas(ctx,key,col,row,cols,rows,x,y,w,h,alpha=1,flip=false){const im=images[key];if(!im)return;const sw=im.width/cols,sh=im.height/rows;ctx.save();ctx.globalAlpha*=alpha;ctx.translate(x,y);if(flip)ctx.scale(-1,1);ctx.drawImage(im,col*sw,row*sh,sw,sh,-w/2,-h,w,h);ctx.restore();}
 function drawBoat(ctx,key,cx,base,w,h,alpha=1,moving=false){
  const im=images[key];if(!im)return;ctx.save();ctx.globalAlpha*=alpha;ctx.translate(cx,base);
@@ -183,7 +185,7 @@ function drawActors(now){
 function tick(now){
  if(state.action&&progress(now)>=1)finishAction();
  for(let n=audioFades.length-1;n>=0;n--){const fade=audioFades[n],amount=Math.max(0,Math.min(1,(now-fade.start)/fade.duration));fade.audio.volume=fade.from*(1-smooth(amount));if(amount>=1){fade.audio.pause();fade.audio.currentTime=0;audioFades.splice(n,1);}}
- if(state.current===1&&state.sound&&wedding.start!==null){const alpha=weddingOpacity(now);cues.wedding.volume=.24*alpha;if(wedding.end!==null&&alpha===0&&!cues.wedding.paused){cues.wedding.pause();cues.wedding.currentTime=0;}}
+ if(state.current===1&&state.sound&&wedding.start!==null){const level=weddingMusicLevel(now);cues.wedding.volume=.24*level;if(level===0&&!cues.wedding.paused){cues.wedding.pause();cues.wedding.currentTime=0;}}
  if(state.transition&&now-state.transition.start>=state.transition.duration){const firstToCity=state.transition.from===0&&state.current===1;state.transition=null;updateUI();if(firstToCity)sailingSound.stop();if(state.current===1){if(state.sound)cityMarket.audio.volume=cityMarket.vol;citySound();}if(state.current===4&&state.completed[4]){ui.ending.hidden=false;ui.ending.classList.add('visible');}}
  const t=state.transition,weight=t?smooth((now-t.start)/t.duration):1;
  if(t&&state.current===1&&state.sound){if(t.from===0)sailingSound.audio.volume=sailingSound.vol*(1-weight);cityMarket.audio.volume=cityMarket.vol*weight;}
@@ -204,7 +206,7 @@ function playCue(a,vol=.2){if(!state.sound)return;const c=cues[a];if(c){c.curren
 function isSailing(){return !state.transition&&((!!state.action&&(state.current===0||state.current===3||state.current===4))||(state.current===1&&!state.completed[1]&&(!!state.action||state.phase[1]>0)));}
 function fadeOutAudio(target,duration=WEDDING_FADE){const audio=target instanceof Loop?target.audio:target;if(audio.paused)return;audioFades=audioFades.filter(item=>item.audio!==audio);audioFades.push({audio,from:audio.volume,start:performance.now(),duration});}
 function fadeOutCity(){cityTimers.forEach(clearTimeout);cityTimers=[];cityActive=false;marketOn=false;fadeOutAudio(cityMarket);fadeOutAudio(sailingSound);fadeOutAudio(cues.vendor);}
-function startWeddingAudio(){if(!state.sound||state.current!==1||wedding.start===null||(wedding.end!==null&&weddingOpacity(performance.now())===0))return;cues.wedding.volume=.24*weddingOpacity(performance.now());cues.wedding.play().catch(()=>{});}
+function startWeddingAudio(){if(!state.sound||state.current!==1||wedding.start===null||state.completed[1]||performance.now()-wedding.start>=WEDDING_MUSIC_FADE_START+WEDDING_MUSIC_FADE_DURATION)return;cues.wedding.volume=.24*weddingMusicLevel(performance.now());cues.wedding.play().catch(()=>{});}
 function startMarket(volume=cityMarket.vol){if(!state.sound||state.current!==1||state.completed[1]||marketOn)return;cityMarket.start(volume);marketOn=true;}
 function stopCitySound(){cityTimers.forEach(clearTimeout);cityTimers=[];cityMarket.stop();['vendor','wedding'].forEach(k=>{audioFades=audioFades.filter(f=>f.audio!==cues[k]);cues[k].pause();cues[k].currentTime=0;});cityActive=false;marketOn=false;}
 function citySound(){
