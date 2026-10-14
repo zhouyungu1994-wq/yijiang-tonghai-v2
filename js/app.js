@@ -1,3 +1,4 @@
+import {createSceneUI} from './scene-ui.js?v=20261015-1';
 import {smooth,lerp,cargoPose,portPose} from './motion.js?v=20261012-11';
 import {ShipInspection} from './ship-inspection.js?v=20261014-9';
 const A='assets/';
@@ -39,6 +40,7 @@ const ui={stage:byId('stage'),nav:byId('chapterNav'),bgs:byId('backgrounds'),act
 
 const state={current:0,unlocked:0,phase:[0,0,0,0,0],completed:[false,false,false,false,false],travel:[0,0,0,0,0],started:false,ready:false,sound:false,action:null,transition:null,lastFocus:null,sceneStart:performance.now()};
 let shipPausedAt=null;
+let updateSceneUI=()=>{};
 const shipInspection=new ShipInspection({sceneAudio:true,soundEnabled:()=>state.sound,toggleSound:()=>toggleSound(),onOpen(){shipPausedAt=performance.now();},onClose(){if(state.action&&shipPausedAt!==null)state.action.start+=performance.now()-shipPausedAt;shipPausedAt=null;ui.stage.querySelector('[data-ship]')?.classList.add('observed');updateUI();}});
 let water={update(){}};
 const images={};
@@ -96,7 +98,7 @@ function updateUI(){
  ui.primary.textContent=action;ui.primary.hidden=done;ui.primary.disabled=busy||!state.started||!state.ready;
  ui.prev.disabled=i===0||busy;ui.next.hidden=!done||i===4;ui.next.disabled=busy;ui.next.textContent=i<4?`进入${SCENES[i+1].title}`:'下一幕';ui.skip.hidden=!state.action;ui.replay.disabled=busy;ui.knowledge.disabled=!!state.transition||!state.ready;
  [...ui.nav.children].forEach((b,n)=>{b.disabled=n>state.unlocked||busy;b.classList.toggle('active',i===n);b.classList.toggle('visited',n<=state.unlocked);});
- ui.stage.classList.toggle('transitioning',!!state.transition);hotspots();
+ ui.stage.classList.toggle('transitioning',!!state.transition);hotspots();updateSceneUI();
 }
 function progress(now){return state.action?Math.max(0,Math.min(1,(now-state.action.start)/state.action.duration)):state.travel[state.current];}
 function complete(){const i=state.current;state.travel[i]=1;state.completed[i]=true;if(i<4)state.unlocked=Math.max(state.unlocked,i+1);state.action=null;if(i===1){cues.wedding.pause();cues.wedding.currentTime=0;fadeOutCity();}if(i===2)fadeOutAudio(thirdWater);updateUI();if(i===4){ui.ending.hidden=false;requestAnimationFrame(()=>ui.ending.classList.add('visible'));}}
@@ -105,7 +107,7 @@ function finishAction(){if(!state.action)return;const from=state.current,fn=stat
 function perform(){
  if(!state.started||!state.ready||state.action||state.transition||!ui.modal.hidden||shipInspection.isOpen||state.completed[state.current])return;
  const i=state.current;
- if(i===0)runAction('小舟向右启程…',8500,()=>{complete();navigate(1);});
+ if(i===0)runAction('小舟向右启程…',8500,()=>complete());
  else if(i===1){
   if(state.phase[i]===0){citySound();runAction('两艘船缓缓靠岸…',10000,()=>{state.phase[i]=1;state.travel[i]=0;updateUI();});}
   else{state.phase[i]=2;runAction('沿岸道取货，沿原路返回…',26000,complete);beginWedding();}
@@ -240,7 +242,7 @@ function bind(){
  let start=null;ui.stage.addEventListener('pointerdown',e=>{if(e.target.closest('button'))return;start={x:e.clientX,y:e.clientY};});ui.stage.addEventListener('pointerup',e=>{if(!start||!state.started||state.action||state.transition)return;const dx=e.clientX-start.x,dy=e.clientY-start.y;start=null;if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.4)navigate(state.current+(dx<0?1:-1));});
  document.addEventListener('visibilitychange',()=>{if(document.hidden&&state.sound)toggleSound();});
 }
-setup();bind();updateUI();
+setup();updateSceneUI=createSceneUI(ui,state);bind();updateUI();
 loading.then(()=>{prepareWeddingLayers();state.ready=true;ui.start.disabled=false;ui.start.textContent='开始行舟 →';updateUI();requestAnimationFrame(tick);}).catch(e=>{console.error(e);ui.start.textContent='素材载入失败，请刷新重试';ui.status.textContent=`素材读取失败：${e.message}`;});
 // Optional water rendering must not block loading the rest of the experience.
 import('./water-scene.js').then(({WaterScene})=>{water=new WaterScene(ui.stage,console.warn);}).catch(e=>console.warn('水面暂不可用，其他交互正常。',e));
