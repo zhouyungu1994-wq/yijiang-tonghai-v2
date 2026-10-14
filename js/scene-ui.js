@@ -11,7 +11,7 @@ export function createSceneUI(ui,state){
  ui.status.setAttribute('role','status');
  ui.stage.append(ui.primary,ui.next,ui.skip,ui.status);panel.hidden=true;
  const visual=document.getElementById('visualArea');
- const fit=()=>{const r=visual.getBoundingClientRect(),w=Math.min(r.width,r.height*16/9);ui.stage.style.width=w+'px';ui.stage.style.height=w*9/16+'px';};
+ const fit=()=>{const w=Math.max(visual.clientWidth,visual.clientHeight*16/9);ui.stage.style.width=w+'px';ui.stage.style.height=w*9/16+'px';};
  new ResizeObserver(fit).observe(visual);fit();
  let previous=-1;
  return ()=>{
@@ -20,7 +20,7 @@ export function createSceneUI(ui,state){
   const position=i===1&&state.phase[1]>0?[40,69]:locations[i];
   const labels=['点船启程',state.phase[1]>0?'点货搬运':'点此迎船','点货装卸','点船扬帆','点船出海'];
   ui.primary.style.left=position[0]+'%';ui.primary.style.top=position[1]+'%';
-  ui.primary.textContent=labels[i];ui.primary.setAttribute('aria-label',labels[i]);
+  const label=document.createElement('span');label.textContent=labels[i];ui.primary.replaceChildren(label);ui.primary.setAttribute('aria-label',labels[i]);
   ui.primary.hidden=busy||done||!state.started||!state.ready;
   ui.next.hidden=!done||i===4||busy||!state.started;
   ui.next.textContent=i<4?'继续 · '+['循江而来','临江入城','朔门集舟','双塔引航','一江通海'][i+1]+' →':'';
