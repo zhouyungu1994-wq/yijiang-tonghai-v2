@@ -23,3 +23,8 @@
 .visual-area{display:grid;place-items:center;overflow:hidden;background-color:#eee5d3;background-image:repeating-linear-gradient(8deg,#997d4910 0px,transparent 1px,transparent 6px),repeating-linear-gradient(97deg,#fffaf51c 0px,transparent 1px,transparent 9px),radial-gradient(ellipse at 35% 20%,#fff9ecaa,transparent 65%),radial-gradient(ellipse at 90% 85%,#c6ae8240,transparent 70%)}
 .stage{margin:0;max-width:none;max-height:none;outline:1px solid #b49a65;outline-offset:3px;box-shadow:0 0 0 3px #f8f0df,0 4px 16px #6b542525;background:#eee5d3}
 .stage-vignette{background:linear-gradient(90deg,#efe4ce35,transparent 2%,transparent 98%,#efe4ce35)}
+
+/* Original supplied painting, styled as a quiet watermark on the paper only. */
+.visual-area{isolation:isolate}
+.visual-area::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:url("assets/heritage/江山胜览图-宣纸暗纹.png") center/cover no-repeat;filter:grayscale(1) brightness(1.55) contrast(1.45) sepia(.25);opacity:.065;mix-blend-mode:multiply}
+.visual-area>.stage{z-index:1}
