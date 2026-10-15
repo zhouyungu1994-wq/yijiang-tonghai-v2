@@ -1,5 +1,13 @@
 // Keep the original action handlers and audio timeline; relocate their controls into the painting.
 export function createSceneUI(ui,state){
+ const poems=[
+  ['无数峰峦远近间','翁卷','野望'],
+  ['城脚千家具舟楫','赵抃','自温将还衢郡题谢公楼'],
+  ['沧海无波日万艘','陈傅良','和郡守沈持要赏柑之什三首·其一'],
+  ['江心双塔压涛波','赵抃','自温将还衢郡题谢公楼'],
+  ['目送风帆到海门','叶适','题学海楼']
+ ];
+ const poem=document.querySelector('.paper-poem');
  const panel=document.querySelector('.control-area');
  const title=document.createElement('div');title.className='painting-title';
  title.append(ui.eyebrow,ui.title,ui.lead);ui.stage.append(title);
@@ -27,7 +35,12 @@ export function createSceneUI(ui,state){
   ui.status.hidden=!state.started||!state.ready||(!busy&&!done);
   tools.hidden=!state.started||!!state.transition;
   title.hidden=!state.started;ui.stage.classList.toggle('painting-busy',busy);
-  if(previous!==i){previous=i;title.classList.remove('arriving');void title.offsetWidth;title.classList.add('arriving');}
+  if(previous!==i){
+   const [verse,author,work]=poems[i];
+   poem.querySelector('.paper-poem-line').textContent=verse;
+   poem.querySelector('.paper-poem-source').replaceChildren(document.createTextNode(author),document.createElement('br'),document.createTextNode('《'+work+'》'));
+   poem.setAttribute('aria-label',author+'诗句：'+verse+'。出自《'+work+'》');
+   previous=i;title.classList.remove('arriving');void title.offsetWidth;title.classList.add('arriving');}
   if(!state.started)previous=-1;
  };
 }
