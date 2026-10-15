@@ -26,5 +26,5 @@
 
 /* Original supplied painting, styled as a quiet watermark on the paper only. */
 .visual-area{isolation:isolate}
-.visual-area::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:url("assets/heritage/江山胜览图-宣纸暗纹.png") center/cover no-repeat;filter:grayscale(1) brightness(1.55) contrast(1.45) sepia(.25);opacity:.065;mix-blend-mode:multiply}
+.visual-area::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:url("assets/heritage/江山胜览图-宣纸暗纹.png") center/cover no-repeat;filter:grayscale(1) brightness(1.55) contrast(1.45) sepia(.25);opacity:.14;mix-blend-mode:multiply}
 .visual-area>.stage{z-index:1}
