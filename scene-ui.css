@@ -28,3 +28,10 @@
 .visual-area{isolation:isolate}
 .visual-area::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:url("assets/heritage/江山胜览图-宣纸暗纹.png") center/cover no-repeat;filter:grayscale(1) brightness(1.55) contrast(1.45) sepia(.25);opacity:.14;mix-blend-mode:multiply}
 .visual-area>.stage{z-index:1}
+
+/* A quiet vertical wood-type inspired inscription on the paper, behind the artwork. */
+.paper-poem{position:absolute;right:clamp(12px,2.3vw,48px);top:15%;z-index:0;display:flex;flex-direction:row-reverse;align-items:flex-start;gap:clamp(8px,1vw,18px);pointer-events:none;color:rgb(91 69 43 / 26%);font-family:"SimSun","Songti SC","STSong",serif;user-select:none}
+.paper-poem p{writing-mode:vertical-rl;text-orientation:upright;margin:0}
+.paper-poem-line{font-size:clamp(25px,2.5vw,45px);font-weight:700;letter-spacing:.32em;line-height:1.2;text-shadow:.35px .2px 0 rgb(91 69 43 / 10%);border-inline-start:1px solid rgb(116 89 50 / 13%);padding-inline-start:12px}
+.paper-poem-source{font-size:clamp(10px,.8vw,13px);line-height:1.9;letter-spacing:.13em;padding-top:12px;max-height:65vh;color:rgb(91 69 43 / 30%)}
+@media(max-width:600px){.paper-poem{top:3%;right:7%;gap:10px}.paper-poem-line{font-size:22px;letter-spacing:.12em}.paper-poem-source{font-size:10px;max-height:40vh}}
