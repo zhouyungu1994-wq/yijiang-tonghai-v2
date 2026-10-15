@@ -11,7 +11,7 @@ export function createSceneUI(ui,state){
  ui.status.setAttribute('role','status');
  ui.stage.append(ui.primary,ui.next,ui.skip,ui.status);panel.hidden=true;
  const visual=document.getElementById('visualArea');
- const fit=()=>{const w=Math.max(visual.clientWidth,visual.clientHeight*16/9);ui.stage.style.width=w+'px';ui.stage.style.height=w*9/16+'px';};
+ const fit=()=>{const inset=visual.clientWidth<600?12:32,w=Math.max(1,Math.min(visual.clientWidth-inset, (visual.clientHeight-inset)*16/9));ui.stage.style.width=w+'px';ui.stage.style.height=w*9/16+'px';};
  new ResizeObserver(fit).observe(visual);fit();
  let previous=-1;
  return ()=>{

@@ -1,4 +1,4 @@
-import {createSceneUI} from './scene-ui.js?v=20261015-2';
+import {createSceneUI} from './scene-ui.js?v=20261015-3';
 import {smooth,lerp,cargoPose,portPose} from './motion.js?v=20261012-11';
 import {ShipInspection} from './ship-inspection.js?v=20261014-9';
 const A='assets/';

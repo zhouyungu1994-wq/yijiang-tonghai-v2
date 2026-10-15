@@ -18,3 +18,8 @@
 .painting-action{display:grid;place-items:center;width:64px;height:64px;padding:0;text-align:center;writing-mode:horizontal-tb;line-height:1;letter-spacing:0;white-space:nowrap}
 .painting-action>span{display:block;position:relative;z-index:1;line-height:1.4;font-size:12px;text-align:center;transform:none;pointer-events:none}
 @media(max-width:850px){.painting-action{width:56px;height:56px;padding:0}.painting-action>span{font-size:11px}}
+
+/* Mount the complete painting on warm paper, with room for a fine gold frame. */
+.visual-area{display:grid;place-items:center;overflow:hidden;background-color:#eee5d3;background-image:repeating-linear-gradient(8deg,#997d4910 0px,transparent 1px,transparent 6px),repeating-linear-gradient(97deg,#fffaf51c 0px,transparent 1px,transparent 9px),radial-gradient(ellipse at 35% 20%,#fff9ecaa,transparent 65%),radial-gradient(ellipse at 90% 85%,#c6ae8240,transparent 70%)}
+.stage{margin:0;max-width:none;max-height:none;outline:1px solid #b49a65;outline-offset:3px;box-shadow:0 0 0 3px #f8f0df,0 4px 16px #6b542525;background:#eee5d3}
+.stage-vignette{background:linear-gradient(90deg,#efe4ce35,transparent 2%,transparent 98%,#efe4ce35)}
