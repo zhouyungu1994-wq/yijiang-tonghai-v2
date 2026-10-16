@@ -15,8 +15,8 @@ const SOURCES={
 };
 const SCENES=[
  {title:'循江而来',lead:'循着江水向东，山地与港城由此相连。',action:'启程',card:{title:'瓯江：山水之间的航运通道',text:'瓯江流经浙南山地，连接丽水、温州并汇入东海。温州港的兴衰也与河口泥沙、岸线变迁及港城建设有关。有关研究梳理了朔门港沉积环境演变与温州港城发展的关系。',note:'长卷里的航行路线用于串联五幕场景，不代表一条已考定的宋元航线。',sources:[SOURCES.river,SOURCES.sediment]},hotspots:[
-  {x:27,y:72,label:'瓯江水路',icon:'水',title:'山水连接港城',text:'宋元时期，龙泉窑瓷器的一条运输通道沿龙泉溪进入瓯江，经青田等地运抵温州港。内陆窑场、沿江城镇与海港，由水路相互连接。',figure:true,sources:[SOURCES.book]},
-  {x:76,y:59,label:'港口与河口',icon:'港',title:'港口随水岸而变',text:'河口水深、泥沙淤积和岸线变化会影响船只停泊与港口空间。朔门港相关研究从沉积环境变化讨论了港城关系。',sources:[SOURCES.sediment,SOURCES.book]}
+  {x:27,y:72,label:'瓯江水路',icon:'水',title:'山水连接港城',text:'瓯江下游连接山地、河口与东海。图中以地形、水系和河口分区呈现这一空间关系：从河流作用占优势的上段，经过河流与海洋作用的过渡区，走向海洋作用占优势的下段。',figure:'terrain',sources:[SOURCES.sediment]},
+  {x:76,y:59,label:'港口与河口',icon:'港',title:'港口随水岸而变',text:'河口水深、泥沙淤积和岸线变化会影响船只停泊与港口空间。朔门港相关研究从沉积环境变化讨论了港城关系。',figure:'shoreline',sources:[SOURCES.sediment]}
  ]},
  {title:'临江入城',lead:'船只靠近江岸，水路与城中街巷相接。',action:'让船靠岸',card:{title:'从江岸入城：港口连接城市生活',text:'朔门古港遗址位于温州古城北侧、瓯江南岸。城门、瓮城、江岸与码头等遗存，呈现宋元以来港区和城市空间之间的联系。南宋绍兴二年（1132），温州设置市舶务管理对外贸易。',note:'',sources:[SOURCES.port,SOURCES.city,SOURCES.book]},hotspots:[
   {x:66,y:43,label:'城与港',icon:'城',title:'朔门古港位于古城北侧',text:'朔门古港遗址的城门、瓮城、江岸及码头遗迹，为观察温州港区与城市北部空间关系提供了考古材料。',sources:[SOURCES.port,SOURCES.city]},
@@ -32,7 +32,7 @@ const SCENES=[
  ]},
  {title:'一江通海',lead:'江道渐宽，船载器物由此走向更远的海路。',action:'驶向江海',card:{title:'瓯窑与龙泉青瓷：港口流通的器物线索',text:'温州本地瓯窑与龙泉窑青瓷是不同窑口。瓯窑在宋元时期持续发展；朔门古港出土的陶瓷遗存也包括龙泉窑产品。港口与内河水路为瓷器流通和海上贸易提供了交通条件。',note:'瓯窑和龙泉窑不可混称；长卷中的货物画面不对应某艘沉船的确切货单。',sources:[SOURCES.ou,SOURCES.port,SOURCES.maritime,SOURCES.book]},hotspots:[
   {x:75,y:62,label:'瓯窑与龙泉窑',icon:'瓷',title:'两种窑口，各有脉络',text:'瓯窑是温州地方窑业传统；龙泉窑青瓷则是另一重要窑口。宋元时期的生产、内河运输与港口贸易共同构成瓷器流通背景。',sources:[SOURCES.ou,SOURCES.port,SOURCES.book]},
-  {x:25,y:78,label:'古今水路',icon:'江',title:'瓯江仍连接内陆与沿海',text:'2024年，温州七里港至青田温溪港集装箱海河联运航线启航，为瓯江水路在当代的运输功能提供了实例。',sources:[SOURCES.river]}
+  {x:25,y:78,label:'古今水路',icon:'江',title:'从内陆窑场到海上航路',text:'宋元时期，龙泉窑瓷器的一条运输通道沿龙泉溪进入瓯江，经青田等地运抵温州港。内陆窑场、沿江城镇与海港，由水路相互连接。图中运输路线为研究推测。',note:'古今水路：2024年，温州七里港至青田温溪港集装箱海河联运航线启航，为瓯江水路在当代的运输功能提供了实例。',figure:true,sources:[SOURCES.book,SOURCES.river]}
  ]}
 ];
 const byId=id=>document.getElementById(id);
@@ -227,6 +227,14 @@ function openCard(card){state.lastFocus=document.activeElement;ui.modalKicker.te
   const img=document.createElement('img');img.src=link.href;img.alt='图2-10 龙泉窑窑址、港址和三路运输路线推测';link.append(img);figure.append(link);
   const caption=document.createElement('figcaption');caption.textContent='图 2-10 龙泉窑窑址、港址和三路运输路线推测⁸⁹（来源:自绘，底图为《中国古代地图历史地图集册》南宋时期）';figure.append(caption);ui.modalArt.append(figure);
   const note=document.createElement('p');note.className='route-original-note';note.textContent='89 “窑址集中城市”参考《浙江省第三次全国文物普查新发现丛书 古窑址》（前言第一页）；“主要港口城市”参考森达也《宋元外销瓷的窑口与输出港口》（考古与文物, 2016(06): 59）；“浙东运河路线”参考黄纯艳《宋代运河的水情和航行》（史学月刊, 2016(06): 96）；“庆元至温州海上航线”参考《文史》第26辑第139页《宋代国内海道考》、《资治通鉴》卷267。';ui.modalArt.append(note);
+  if(card.figure==='terrain'||card.figure==='shoreline'){
+   const terrain=card.figure==='terrain';
+   link.href=A+'heritage/'+(terrain?'图1a-瓯江口地貌.png':'图1b-朔门港岸线.png');img.src=link.href;
+   img.alt=terrain?'原图1（a）：瓯江口地貌环境及本研究现代表层样品分布':'原图1（b）：朔门古港发掘区域和钻孔位置';
+   caption.textContent='图 1 瓯江下游地貌及表层样采样点和钻孔分布（节选'+(terrain?'a':'b')+'）。原图注：'+(terrain?'(a) 瓯江口地貌环境及本研究现代表层样品分布[21]，河口分区为河流作用占优势的河口上段，河流与海洋优势过渡的河口中段，以及海洋作用占优势的河口下段。':'(b) 朔门古港发掘区域和钻孔位置。');
+   note.textContent=terrain?'原图注所引文献 [21]：Wei X, Liang Y H, Liu T H, et al. Hydrodynamic processes and extreme events recognized from the sedimentary records at ancient Port Shuomen in the Oujiang River mouth, Southeast China [J]. Marine Geology, 2025, 486: 107562.':'图像载于韦鑫等《瓯江口朔门港沉积环境演变与温州港城关系初探》图1（b），PDF第4页。原图注未另列此分图的底图来源。';
+  }
+
  }else{const label=document.createElement('span');label.textContent='瓯江行旅';ui.modalArt.append(label);}
  ui.sources.replaceChildren();(card.sources||[]).forEach(s=>{const el=document.createElement(s.url?'a':'span');if(s.url){el.href=s.url;el.target='_blank';el.rel='noopener noreferrer';}el.textContent=`资料来源：${s.label}${s.url?' ↗':''}`;ui.sources.append(el);});ui.modal.hidden=false;ui.modalClose.focus();}
 function closeCard(){if(ui.modal.hidden)return;ui.modal.hidden=true;state.lastFocus?.focus?.();}
