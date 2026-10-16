@@ -15,7 +15,7 @@ const SOURCES={
 };
 const SCENES=[
  {title:'循江而来',lead:'循着江水向东，山地与港城由此相连。',action:'启程',card:{title:'瓯江：山水之间的航运通道',text:'瓯江流经浙南山地，连接丽水、温州并汇入东海。温州港的兴衰也与河口泥沙、岸线变迁及港城建设有关。有关研究梳理了朔门港沉积环境演变与温州港城发展的关系。',note:'长卷里的航行路线用于串联五幕场景，不代表一条已考定的宋元航线。',sources:[SOURCES.river,SOURCES.sediment]},hotspots:[
-  {x:27,y:72,label:'瓯江水路',icon:'水',title:'山水连接港城',text:'瓯江贯穿浙南山地并通向东海，是内陆与温州港之间的重要水系。今天，温州—丽水海河联运仍沿瓯江连接内河与海运。',sources:[SOURCES.river]},
+  {x:27,y:72,label:'瓯江水路',icon:'水',title:'山水连接港城',text:'宋元时期，龙泉窑瓷器的一条运输通道沿龙泉溪进入瓯江，经青田等地运抵温州港。内陆窑场、沿江城镇与海港，由水路相互连接。',figure:true,sources:[SOURCES.book]},
   {x:76,y:59,label:'港口与河口',icon:'港',title:'港口随水岸而变',text:'河口水深、泥沙淤积和岸线变化会影响船只停泊与港口空间。朔门港相关研究从沉积环境变化讨论了港城关系。',sources:[SOURCES.sediment,SOURCES.book]}
  ]},
  {title:'临江入城',lead:'船只靠近江岸，水路与城中街巷相接。',action:'让船靠岸',card:{title:'从江岸入城：港口连接城市生活',text:'朔门古港遗址位于温州古城北侧、瓯江南岸。城门、瓮城、江岸与码头等遗存，呈现宋元以来港区和城市空间之间的联系。南宋绍兴二年（1132），温州设置市舶务管理对外贸易。',note:'',sources:[SOURCES.port,SOURCES.city,SOURCES.book]},hotspots:[
@@ -218,7 +218,17 @@ function tick(now){
  water.update(now/1000,state.current,-1,t?0:1);
  drawActors(shipPausedAt??now);requestAnimationFrame(tick);
 }
-function openCard(card){state.lastFocus=document.activeElement;ui.modalKicker.textContent=`第${['一','二','三','四','五'][state.current]}幕 · 文化笔记`;ui.modalTitle.textContent=card.title;ui.modalText.textContent=card.text;ui.modalNote.textContent=card.note||'';ui.modalNote.hidden=!card.note;ui.modalArt.style.backgroundImage=`url('${A+assets['bg'+(state.current+1)]}')`;ui.sources.replaceChildren();(card.sources||[]).forEach(s=>{const el=document.createElement(s.url?'a':'span');if(s.url){el.href=s.url;el.target='_blank';el.rel='noopener noreferrer';}el.textContent=`资料来源：${s.label}${s.url?' ↗':''}`;ui.sources.append(el);});ui.modal.hidden=false;ui.modalClose.focus();}
+function openCard(card){state.lastFocus=document.activeElement;ui.modalKicker.textContent=`第${['一','二','三','四','五'][state.current]}幕 · 文化笔记`;ui.modalTitle.textContent=card.title;ui.modalText.textContent=card.text;ui.modalNote.textContent=card.note||'';ui.modalNote.hidden=!card.note;ui.modalArt.style.backgroundImage=`url('${A+assets['bg'+(state.current+1)]}')`;ui.modal.querySelector('.knowledge-panel').classList.toggle('has-route-figure',!!card.figure);
+ ui.modalArt.replaceChildren();
+ if(card.figure){
+  ui.modalArt.style.backgroundImage='none';
+  const figure=document.createElement('figure');figure.className='route-figure';
+  const link=document.createElement('a');link.href=A+'heritage/图2-10-龙泉窑运输路线.png';link.target='_blank';link.rel='noopener';link.title='打开大图';
+  const img=document.createElement('img');img.src=link.href;img.alt='图2-10 龙泉窑窑址、港址和三路运输路线推测';link.append(img);figure.append(link);
+  const caption=document.createElement('figcaption');caption.textContent='图 2-10 龙泉窑窑址、港址和三路运输路线推测⁸⁹（来源:自绘，底图为《中国古代地图历史地图集册》南宋时期）';figure.append(caption);ui.modalArt.append(figure);
+  const note=document.createElement('p');note.className='route-original-note';note.textContent='89 “窑址集中城市”参考《浙江省第三次全国文物普查新发现丛书 古窑址》（前言第一页）；“主要港口城市”参考森达也《宋元外销瓷的窑口与输出港口》（考古与文物, 2016(06): 59）；“浙东运河路线”参考黄纯艳《宋代运河的水情和航行》（史学月刊, 2016(06): 96）；“庆元至温州海上航线”参考《文史》第26辑第139页《宋代国内海道考》、《资治通鉴》卷267。';ui.modalArt.append(note);
+ }else{const label=document.createElement('span');label.textContent='瓯江行旅';ui.modalArt.append(label);}
+ ui.sources.replaceChildren();(card.sources||[]).forEach(s=>{const el=document.createElement(s.url?'a':'span');if(s.url){el.href=s.url;el.target='_blank';el.rel='noopener noreferrer';}el.textContent=`资料来源：${s.label}${s.url?' ↗':''}`;ui.sources.append(el);});ui.modal.hidden=false;ui.modalClose.focus();}
 function closeCard(){if(ui.modal.hidden)return;ui.modal.hidden=true;state.lastFocus?.focus?.();}
 class Loop{constructor(src,vol){this.audio=new Audio(src);this.audio.loop=true;this.audio.volume=vol;this.vol=vol;}start(initialVolume=this.vol){audioFades=audioFades.filter(f=>f.audio!==this.audio);this.audio.volume=initialVolume;this.audio.play().catch(()=>{});}stop(){audioFades=audioFades.filter(f=>f.audio!==this.audio);this.audio.pause();this.audio.currentTime=0;}}
 const sailingSound=new Loop(A+'audio/流水.mp3',.24);

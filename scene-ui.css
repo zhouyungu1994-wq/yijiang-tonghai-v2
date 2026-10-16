@@ -43,3 +43,8 @@
 .paper-poem::after{bottom:-2px;left:-2px;border-width:0 0 2px 2px}
 .paper-poem-line{border-inline-start:0;padding-inline-start:0}
 @media(max-width:600px){.paper-poem{padding:12px 8px}}
+
+.has-route-figure{width:min(1100px,100%);grid-template-columns:1.15fr 1fr}
+.has-route-figure .knowledge-art{display:block;background:#f7f1e4;padding:25px;color:#384b49;text-shadow:none;letter-spacing:normal;min-height:0}
+.route-figure{margin:0}.route-figure img{display:block;max-width:100%;width:auto;max-height:54vh;object-fit:contain;margin:auto}.route-figure figcaption{font-size:12px;line-height:1.7;margin-top:12px}.route-original-note{font-size:11px;line-height:1.8;border-top:1px solid #99856755;margin:14px 0 0;padding-top:12px}.has-route-figure .source-list{font-size:12px;line-height:1.7}
+@media(max-width:850px){.has-route-figure{grid-template-columns:1fr}.has-route-figure .knowledge-art{padding:22px}.route-figure img{max-height:50vh}}
