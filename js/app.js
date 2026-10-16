@@ -1,4 +1,4 @@
-import {createSceneUI} from './scene-ui.js?v=20261016-2';
+import {createSceneUI} from './scene-ui.js?v=20261016-3';
 import {smooth,lerp,cargoPose,portPose} from './motion.js?v=20261012-11';
 import {ShipInspection} from './ship-inspection.js?v=20261014-9';
 const A='assets/';
@@ -201,6 +201,9 @@ function tick(now){
  if(state.current===1&&state.sound&&wedding.start!==null){const level=weddingMusicLevel(now);cues.wedding.volume=.24*level;if(level===0&&!cues.wedding.paused){cues.wedding.pause();cues.wedding.currentTime=0;}}
  if(state.transition&&now-state.transition.start>=state.transition.duration){const firstToCity=state.transition.from===0&&state.current===1;state.transition=null;updateUI();if(firstToCity)sailingSound.stop();if(state.current===1){if(state.sound)cityMarket.audio.volume=cityMarket.vol;citySound();}if(state.current===2)startThirdWater();if(state.current===4&&state.completed[4]){ui.ending.hidden=false;ui.ending.classList.add('visible');}}
  const t=state.transition,weight=t?smooth((now-t.start)/t.duration):1;
+ // The inscription uses the same dissolve clock as the incoming painting.
+ const poem=document.querySelector('.paper-poem');
+ if(poem){poem.style.opacity=String(weight);poem.style.filter=weight<1?'blur('+(3*(1-weight)).toFixed(2)+'px)':'none';}
  if(t&&state.current===1&&state.sound){if(t.from===0)sailingSound.audio.volume=sailingSound.vol*(1-weight);cityMarket.audio.volume=cityMarket.vol*weight;}
  [...ui.bgs.children].forEach((b,n)=>{b.style.transition='none';b.style.zIndex=n===state.current?'1':'0';b.style.opacity=n===state.current?weight:t&&n===t.from?1:0;});
  // During the dissolve use only the blended paintings, so old water never overlays incoming land.
