@@ -1,4 +1,4 @@
-import {createSceneUI} from './scene-ui.js?v=20261016-3';
+import {createSceneUI} from './scene-ui.js?v=20261016-4';
 import {smooth,lerp,cargoPose,portPose} from './motion.js?v=20261012-11';
 import {ShipInspection} from './ship-inspection.js?v=20261014-9';
 const A='assets/';
@@ -203,7 +203,15 @@ function tick(now){
  const t=state.transition,weight=t?smooth((now-t.start)/t.duration):1;
  // The inscription uses the same dissolve clock as the incoming painting.
  const poem=document.querySelector('.paper-poem');
- if(poem){poem.style.opacity=String(weight);poem.style.filter=weight<1?'blur('+(3*(1-weight)).toFixed(2)+'px)':'none';}
+ if(poem){
+  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  poem.style.opacity=String(weight);
+  // A feathered ink front spreads out through the paper, then settles into type.
+  const radius=weight*155;
+  const mask=weight>=1||reduced?'none':`radial-gradient(ellipse at 50% 42%, #000 0%, #000 ${Math.max(0,radius-38).toFixed(2)}%, transparent ${Math.max(.1,radius).toFixed(2)}%)`;
+  poem.style.maskImage=mask;poem.style.webkitMaskImage=mask;
+  poem.style.filter=weight<1&&!reduced?'blur('+(6*(1-weight)*(1-weight)).toFixed(2)+'px)':'none';
+ }
  if(t&&state.current===1&&state.sound){if(t.from===0)sailingSound.audio.volume=sailingSound.vol*(1-weight);cityMarket.audio.volume=cityMarket.vol*weight;}
  [...ui.bgs.children].forEach((b,n)=>{b.style.transition='none';b.style.zIndex=n===state.current?'1':'0';b.style.opacity=n===state.current?weight:t&&n===t.from?1:0;});
  // During the dissolve use only the blended paintings, so old water never overlays incoming land.

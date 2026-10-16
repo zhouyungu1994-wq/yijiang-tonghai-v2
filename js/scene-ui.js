@@ -25,8 +25,8 @@ export function createSceneUI(ui,state){
  return ()=>{
   const i=state.current,busy=!!state.action||!!state.transition,done=state.completed[i];
   poem.hidden=!state.started;
-  if(state.transition){poem.style.opacity='0';poem.style.filter='blur(3px)';}
-  else{poem.style.opacity='1';poem.style.filter='none';}
+  if(state.transition){poem.style.opacity='0';poem.style.filter='blur(6px)';poem.style.maskImage='radial-gradient(ellipse, #000 0%, transparent .1%)';}
+  else{poem.style.opacity='1';poem.style.filter='none';poem.style.maskImage='none';poem.style.webkitMaskImage='none';}
   const locations=[[53,76],[96,77],[43,69],[60,90],[30,72]];
   const position=i===1&&state.phase[1]>0?[40,69]:locations[i];
   const labels=['点船启程',state.phase[1]>0?'点货搬运':'点此迎船','点货装卸','点船扬帆','点船出海'];
