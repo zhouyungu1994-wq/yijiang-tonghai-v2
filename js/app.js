@@ -39,7 +39,7 @@ const SCENES=[
  ]},
  {title:'一江通海',lead:'江道渐宽，船载器物由此走向更远的海路。',action:'驶向江海',card:{title:'瓯窑与龙泉青瓷：港口流通的器物线索',text:'温州本地瓯窑与龙泉窑青瓷是不同窑口。瓯窑在宋元时期持续发展；朔门古港出土的陶瓷遗存也包括龙泉窑产品。港口与内河水路为瓷器流通和海上贸易提供了交通条件。',note:'瓯窑和龙泉窑不可混称；长卷中的货物画面不对应某艘沉船的确切货单。',sources:[SOURCES.ou,SOURCES.ceramics,SOURCES.port]},hotspots:[
   {"x": 75, "y": 62, "label": "港口瓷器", "icon": "瓷", "title": "港口里的瓷器：多种窑口汇聚", "text": "朔门古港出土瓷器以龙泉窑系产品为主，同时包含瓯窑等其他窑口。不同产地的瓷器在港口汇聚，留下了商品流通与贸易往来的线索。", "figure": "ceramics", "sources": [SOURCES.ceramics,SOURCES.port,SOURCES.ceramicsPhoto]},
-  {x:25,y:78,label:'古今水路',icon:'江',title:'从内陆窑场到海上航路',text:'宋元时期，龙泉窑瓷器的一条运输通道沿龙泉溪进入瓯江，经青田等地运抵温州港。内陆窑场、沿江城镇与海港，由水路相互连接。图中运输路线为研究推测。',note:'古今水路：2024年，温州七里港至青田温溪港集装箱海河联运航线启航，为瓯江水路在当代的运输功能提供了实例。',figure:true,sources:[SOURCES.book,{label:'图示底图：《中国古代地图历史地图集册》南宋时期',url:null},{label:'（光绪）《龙泉县志》卷十二《艺文》',url:null},{label:'浙江省文物局编《浙江省第三次全国文物普查新发现丛书·古窑址》',url:null},{label:'森达也《宋元外销瓷的窑口与输出港口》，《考古与文物》2016年第6期',url:null},{label:'黄纯艳《宋代运河的水情和航行》，《史学月刊》2016年第6期',url:null},{label:'冯汉镭《宋代国内海道考》，《文史》第26辑',url:null},{label:'《资治通鉴》卷267',url:null},SOURCES.river]}
+  {x:25,y:78,label:'古今水路',icon:'江',title:'从内陆窑场到海上航路',text:'宋元时期，龙泉窑瓷器的一条运输通道沿龙泉溪进入瓯江，经青田等地运抵温州港。内陆窑场、沿江城镇与海港，由水路相互连接。图中运输路线为研究推测。',note:'古今水路：2024年，温州七里港至青田温溪港集装箱海河联运航线启航，为瓯江水路在当代的运输功能提供了实例。',figure:true,sources:[{label:'褚子婧《宋元时期温州港口及其相关城市建设研究》§2.3，第30—31页、图2-10',url:null},{label:'图2-10底图：《中国古代地图历史地图集册》南宋时期',url:null},SOURCES.river]}
  ]}
 ];
 const byId=id=>document.getElementById(id);
