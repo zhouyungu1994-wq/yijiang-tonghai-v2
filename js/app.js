@@ -30,8 +30,8 @@ const SCENES=[
   {x:72,y:74,label:'码头设施',icon:'港',title:'码头见证停泊与装卸',text:'码头连接水路与陆路，供船舶停泊、货物装卸、旅客上下与补充给养。论文结合朔门古港遗址，讨论了石砌码头与栈桥式码头两种结构。\n\n9号码头采用石边土心结构，并以底部木桩、侧边横木适应滩涂软土环境；论文记述，其东侧栈桥式码头遗迹保留了7组等距桩基及横梁构件。木桩与横梁支承栈桥，使岸上道路能够向停泊船只延伸。',figure:'dock',sources:[{label:'褚子婧《宋元时期温州港口及其相关城市建设研究》§4.1.1“泊船码头”，第48—49页',url:null},{label:'论文注127所引：黄溍《永嘉重修海堤记》，载俞光编《温州古代经济史料汇编》，上海社会科学院出版社，2005：549',url:null}]}
  ]},
  {title:'双塔引航',lead:'船行开阔江面，江心屿双塔渐渐显现。',action:'扬帆起航',card:{title:'江心屿双塔：江面上的方向标志',text:'江心屿位于瓯江之中，东西双塔是温州历史地标。地方资料记载，往来船只曾以双塔辨认温州方向。双塔为砖塔建筑，成为江面与城市之间醒目的视觉参照。',note:'“引航”指地标帮助辨认方位，不代表现代灯塔设备或主动导航。',sources:[SOURCES.towers,SOURCES.book]},hotspots:[
-  {x:31,y:43,label:'东西双塔',icon:'塔',title:'江心屿的两座砖塔',text:'江心屿双塔隔江相望，是温州城市景观的重要历史地标。地方文献记载了双塔形制与高度。',sources:[SOURCES.towers,SOURCES.book]},
-  {x:56,y:64,label:'辨认方向',icon:'航',title:'远望岛屿与塔影',text:'从江面观察岛岸和塔影，可以理解江心屿在航道、温州古城与瓯江空间中的位置。',sources:[SOURCES.towers]}
+  {"x": 31, "y": 43, "label": "东西双塔", "icon": "塔", "title": "江心双塔：江面上的参照", "text": "江心屿的东西双塔是瓯江江面上醒目的地标。论文将双塔列入具有导航作用的塔类建筑，并引用杨蟠诗句“塔灯相对影，夜夜照蛟龙”，讨论塔影与灯火对夜间航行的意义。\n\n左侧原画局部可见峰石、楼阁、塔影与舟船。本幕借鉴这种岛屿与船只相互映衬的构图，以双塔作为航行中的视觉焦点，将原画意象转译为江心屿场景。", "figure": "islandPainting", "sources": [{"label": "褚子婧《宋元时期温州港口及其相关城市建设研究》§2.2.1，第20页；杨蟠诗句据该论文引文", "url": null}]},
+  {"x": 56, "y": 64, "label": "辨认方向", "icon": "航", "title": "从海上标志到入江航路", "text": "从外海进入瓯江，船只需要借助可辨识的岛屿、山峰与塔影判断方向。论文梳理了天然地标、简易标识、官方航标船和塔类建筑等航行参照，并将江心屿双塔放在沿海航标体系中讨论。\n\n图2-3以海防图为底图标示瓯江入海口航线，可帮助理解外海、河口与府城之间的联系。岛屿与塔影帮助辨认方位，进入河口后的航行还与水道条件有关。", "note": "此图为论文作者依据清代海防底图绘制的航线示意，不是宋元时期的实测航道图。", "figure": "estuaryRoute", "sources": [{"label": "褚子婧《宋元时期温州港口及其相关城市建设研究》§2.2.1，第20—22页，图2-3", "url": null}]}
  ]},
  {title:'一江通海',lead:'江道渐宽，船载器物由此走向更远的海路。',action:'驶向江海',card:{title:'瓯窑与龙泉青瓷：港口流通的器物线索',text:'温州本地瓯窑与龙泉窑青瓷是不同窑口。瓯窑在宋元时期持续发展；朔门古港出土的陶瓷遗存也包括龙泉窑产品。港口与内河水路为瓷器流通和海上贸易提供了交通条件。',note:'瓯窑和龙泉窑不可混称；长卷中的货物画面不对应某艘沉船的确切货单。',sources:[SOURCES.ou,SOURCES.port,SOURCES.maritime,SOURCES.book]},hotspots:[
   {x:75,y:62,label:'瓯窑与龙泉窑',icon:'瓷',title:'两种窑口，各有脉络',text:'瓯窑是温州地方窑业传统；龙泉窑青瓷则是另一重要窑口。宋元时期的生产、内河运输与港口贸易共同构成瓷器流通背景。',sources:[SOURCES.ou,SOURCES.port,SOURCES.book]},
@@ -254,6 +254,16 @@ function openCard(card){state.lastFocus=document.activeElement;ui.modalKicker.te
    const area=document.createElement('span');area.className='translation-area';area.setAttribute('aria-hidden','true');
    const [x,y,w,h]=card.rect;Object.assign(area.style,{left:x+'%',top:y+'%',width:w+'%',height:h+'%'});frame.append(area);
    const label=document.createElement('figcaption');label.textContent='本幕转译 · 金框标出对应区域';comparison.append(frame,label);ui.modalArt.append(comparison);
+  }
+  if(card.figure==='islandPainting'){
+   link.href=A+'heritage/江山胜览图-岛屿塔影.png';img.src=link.href;img.alt='《江山胜览图》局部中的岛屿、塔影与舟船';
+   caption.textContent='《江山胜览图》局部：岛屿、塔影与舟船。';
+   note.textContent='图像来源：用户提供的画作局部。点击图片可查看大图。';
+  }
+  if(card.figure==='estuaryRoute'){
+   link.href=A+'heritage/图2-3-瓯江入海口航线.png';img.src=link.href;img.alt='图2-3 瓯江入海口航线';
+   caption.textContent='图 2-3 瓯江入海口航线（来源：自绘，底图为（光绪）《永嘉县志》卷首诸图海防图）';
+   note.textContent='引自褚子婧《宋元时期温州港口及其相关城市建设研究》，第22页。点击图片可查看大图。';
   }
   if(card.figure==='shibo'){
    link.href=A+'heritage/图4-9-市舶司建设时间及分布.png';img.src=link.href;img.alt='图4-9 宋元时期市舶司建设时间及分布';
