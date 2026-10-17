@@ -18,11 +18,15 @@ const SCENES=[
   {x:27,y:72,label:'瓯江水路',icon:'水',title:'山水连接港城',text:'瓯江下游连接山地、河口与东海。图中以地形、水系和河口分区呈现这一空间关系：从河流作用占优势的上段，经过河流与海洋作用的过渡区，走向海洋作用占优势的下段。',figure:'terrain',sources:[SOURCES.sediment]},
   {x:76,y:59,label:'港口与河口',icon:'港',title:'港口随水岸而变',text:'河口水深、泥沙淤积和岸线变化会影响船只停泊与港口空间。朔门港相关研究从沉积环境变化讨论了港城关系。',figure:'shoreline',sources:[SOURCES.sediment]}
  ]},
- {title:'临江入城',lead:'船只靠近江岸，水路与城中街巷相接。',action:'让船靠岸',card:{title:'从江岸入城：港口连接城市生活',text:'朔门古港遗址位于温州古城北侧、瓯江南岸。城门、瓮城、江岸与码头等遗存，呈现宋元以来港区和城市空间之间的联系。南宋温州设有市舶务，参与海外贸易管理，其初设时间有不同考证。',note:'',sources:[SOURCES.port,SOURCES.city,SOURCES.book]},hotspots:[
-  {x:66,y:43,label:'城与港',icon:'城',title:'朔门古港位于古城北侧',text:'朔门古港遗址的城门、瓮城、江岸及码头遗迹，为观察温州港区与城市北部空间关系提供了考古材料。',figure:'cityLife',sources:[SOURCES.port,SOURCES.city]},
+ {title:'临江入城',lead:'船只靠近江岸，水路与城中街巷相接。',action:'让船靠岸',card:{"title": "从《江山胜览图》到临江入城", "text": "本幕从原画中提取岸边行旅、轿舆队伍、临时摊位与沿街商铺，重新组织为可交互的临江街市。点击画面中的四个“画”字标记，可以对照原画局部与本幕对应区域。", "figure": "translation", "image": "江山胜览图-沿岸场景.png", "rect": [0, 0, 100, 100], "sources": [{"label": "图像：用户提供的《江山胜览图》局部；转译说明：本作创作设计", "url": null}]},hotspots:[
+  {"x": 83, "y": 57, "label": "沿岸入城", "icon": "画", "title": "从原画的岸边行旅到临江入城", "text": "原画中，舟船停在岸边，岸上分布着建筑、树木与行旅人物。本幕借鉴舟岸相接、人物沿路活动的组织方式，将其转译为船只靠岸、货物进入街市的连续场景。", "image": "江山胜览图-沿岸场景.png", "rect": [73, 43, 25, 48], "figure": "translation", "sources": [{"label": "图像：用户提供的《江山胜览图》局部；转译说明：本作创作设计", "url": null}]},
+  {"x": 83, "y": 24, "label": "迎亲转译", "icon": "画", "title": "从轿舆与行旅队伍到迎亲场景", "text": "原画局部可见轿舆、挑担与行旅队伍。本幕提取队伍沿街行进的构图与人物组合，创作了远处的迎亲场景，并加入锣鼓声与渐入动画。迎亲情节是本作的叙事设计。", "image": "江山胜览图-行旅队伍.png", "rect": [72, 15, 22, 22], "figure": "translation", "sources": [{"label": "图像：用户提供的《江山胜览图》局部；转译说明：本作创作设计", "url": null}]},
+  {"x": 49, "y": 58, "label": "临时摊位", "icon": "画", "title": "从简易凉棚到街边茶摊", "text": "原画局部以立柱、棚顶与牵绳搭起临时凉棚，棚下聚集人物。论文图5-11（e）将这一局部标为“临时摊位”。本幕借鉴棚架与人物围聚的形式，将其转译为前景茶摊，并加入叫卖声与人物活动。", "image": "江山胜览图-棚亭人物局部.png", "rect": [36, 50, 29, 24], "figure": "translation", "sources": [{"label": "图像：用户提供的《江山胜览图》局部；转译说明：本作创作设计", "url": null}, {"label": "褚子婧《宋元时期温州港口及其相关城市建设研究》，图5-11（e）“临时摊位”，第90页", "url": null}]},
+  {"x": 24, "y": 47, "label": "沿街商铺", "icon": "画", "title": "从画中街市到沿街商铺", "text": "原画局部呈现临街建筑、檐下空间以及行人、挑担者。本幕提取店铺沿街排列、人物在店前停留与穿行的关系，转译为左侧的商铺与街市活动；色彩、货物与动态人物由本作重新组织。", "image": "江山胜览图-街市人物局部.png", "rect": [10, 25, 34, 29], "figure": "translation", "sources": [{"label": "图像：用户提供的《江山胜览图》局部；转译说明：本作创作设计", "url": null}]},
   {x:28,y:36,label:'港口管理',icon:'贸',title:'南宋温州的市舶管理',text:'市舶机构管理海外贸易，承担货物征税（抽解）、官府收购（博买）、相关货物存储、船舶查验与商船公凭发给，以及外商接待等事务。港口由此连接起停泊、贸易与城市管理。\n\n温州在南宋设有市舶务。关于初设时间，论文梳理了不同考证，并引邱志诚的研究提出建炎二年至四年（1128—1130）的判断。',note:'图示为市舶机构的建置时间与分布，画面中的热点位置仅作为交互入口，不代表市舶机构的实际建筑位置。',figure:'shibo',sources:[{label:'褚子婧《宋元时期温州港口及其相关城市建设研究》§4.2.1、§4.2.3，正文第54、60—62页',url:null},{label:'设立时间考辨：论文注141所引，邱志诚《宋代温州市舶务设置时间考辨》，浙江海洋学院学报（人文科学版），2013，30(6)：5—8',url:null}]}
  ]},
  {title:'朔门集舟',lead:'船舶停靠江岸，货物经由码头装载。',action:'开始装卸',card:{title:'宋代船舶与朔门港的装载线索',text:'朔门港遗址发现宋代沉船及码头遗存。二号沉船现存船体残长约15.9米、宽约4.26米；整船约20米长、约6米宽属于研究推估。船体舱壁和分舱结构，为认识宋代木船建造与港口运输提供了实物线索。',note:'残存尺寸与复原推估分别标示；长卷中的船只不是沉船的精确复原。',sources:[SOURCES.port,SOURCES.book,SOURCES.wreck]},hotspots:[
+  {"x": 33, "y": 59, "label": "城与港", "icon": "城", "title": "朔门古港位于古城北侧", "text": "拱辰门区域位于朔门古港遗址西端南侧，为古城北门拱辰门外。遗迹群包括宋元和明清时期的瓮城、出城道路、石砌建筑或院墙以及不同时期的码头。图中可对照瓮城、道路、7号码头、9号码头与木栈道的位置，理解港区与古城的空间联系。", "figure": "portLayout", "sources": [{"label": "褚子婧《宋元时期温州港口及其相关城市建设研究》§4.1，第47—48页，图4-2", "url": null}]},
   {x:72,y:74,label:'码头设施',icon:'港',title:'码头见证停泊与装卸',text:'码头连接水路与陆路，供船舶停泊、货物装卸、旅客上下与补充给养。论文结合朔门古港遗址，讨论了石砌码头与栈桥式码头两种结构。\n\n9号码头采用石边土心结构，并以底部木桩、侧边横木适应滩涂软土环境；论文记述，其东侧栈桥式码头遗迹保留了7组等距桩基及横梁构件。木桩与横梁支承栈桥，使岸上道路能够向停泊船只延伸。',figure:'dock',sources:[{label:'褚子婧《宋元时期温州港口及其相关城市建设研究》§4.1.1“泊船码头”，第48—49页',url:null},{label:'论文注127所引：黄溍《永嘉重修海堤记》，载俞光编《温州古代经济史料汇编》，上海社会科学院出版社，2005：549',url:null}]}
  ]},
  {title:'双塔引航',lead:'船行开阔江面，江心屿双塔渐渐显现。',action:'扬帆起航',card:{title:'江心屿双塔：江面上的方向标志',text:'江心屿位于瓯江之中，东西双塔是温州历史地标。地方资料记载，往来船只曾以双塔辨认温州方向。双塔为砖塔建筑，成为江面与城市之间醒目的视觉参照。',note:'“引航”指地标帮助辨认方位，不代表现代灯塔设备或主动导航。',sources:[SOURCES.towers,SOURCES.book]},hotspots:[
@@ -235,6 +239,21 @@ function openCard(card){state.lastFocus=document.activeElement;ui.modalKicker.te
    link.href=A+'heritage/江山胜览图-泊船岸边.png';img.src=link.href;img.alt='《江山胜览图》泊船与岸边活动局部';
    caption.textContent='《江山胜览图》局部：泊船与岸边活动。';
    note.textContent='图像来源：用户提供的画作局部。点击图片可查看大图。';
+  }
+  if(card.figure==='portLayout'){
+   link.href=A+'heritage/图4-2-拱辰门区域.png';img.src=link.href;img.alt='温州朔门古港遗址拱辰门区域：瓮城、道路、码头和木栈道';
+   caption.textContent='图 4-2 温州朔门古港遗址拱辰门区域（来源：自绘，自摄）';
+   note.textContent='引自褚子婧《宋元时期温州港口及其相关城市建设研究》，第48页。点击图片可查看大图。';
+  }
+  if(card.figure==='translation'){
+   link.href=A+'heritage/'+card.image;img.src=link.href;img.alt=card.title+'：原画局部';
+   caption.textContent='原画局部 · 《江山胜览图》';note.textContent='图像来源：用户提供。点击原画可查看大图。';
+   const comparison=document.createElement('figure');comparison.className='translation-comparison';
+   const frame=document.createElement('div');frame.className='translation-frame';
+   const scene=document.createElement('img');scene.src=A+assets.bg2;scene.alt='第二幕临江入城对应区域';frame.append(scene);
+   const area=document.createElement('span');area.className='translation-area';area.setAttribute('aria-hidden','true');
+   const [x,y,w,h]=card.rect;Object.assign(area.style,{left:x+'%',top:y+'%',width:w+'%',height:h+'%'});frame.append(area);
+   const label=document.createElement('figcaption');label.textContent='本幕转译 · 金框标出对应区域';comparison.append(frame,label);ui.modalArt.append(comparison);
   }
   if(card.figure==='shibo'){
    link.href=A+'heritage/图4-9-市舶司建设时间及分布.png';img.src=link.href;img.alt='图4-9 宋元时期市舶司建设时间及分布';
