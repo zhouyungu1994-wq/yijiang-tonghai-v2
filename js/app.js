@@ -1,41 +1,44 @@
 import {createSceneUI} from './scene-ui.js?v=20261016-4';
 import {smooth,lerp,cargoPose,portPose} from './motion.js?v=20261012-11';
-import {ShipInspection} from './ship-inspection.js?v=20261017-6';
+import {ShipInspection} from './ship-inspection.js?v=20261018-1';
 const A='assets/';
 const SOURCES={
  river:{label:'浙江省交通运输厅｜温州—丽水海河联运启航（2024）',url:'https://jtyst.zj.gov.cn/art/2024/12/27/art_1229304975_59039943.html'},
- port:{label:'浙江新闻｜朔门古港遗址考古发现（2023）',url:'https://zjnews.zjol.com.cn/202303/t20230328_25571788.shtml'},
- maritime:{label:'新华网｜温州千年古港与海上丝绸之路（2022）',url:'https://www.xinhuanet.com/2022-09/28/c_1129039940.htm'},
- city:{label:'温州市国资委｜朔门古港遗址保护展示项目（2025）',url:'https://wzgzw.wenzhou.gov.cn/art/2025/5/14/art_1221492_58955059.html'},
+ port:{label:'梁岩华《走近温州朔门古港遗址》，《人民日报》2023年4月15日第6版',url:'https://paper.people.com.cn/rmrb/html/2023-04/15/nw.D110000renmrb_20230415_1-06.htm'},
  towers:{label:'温州市文化广电旅游局｜江心屿双塔',url:'https://wl.wenzhou.gov.cn/art/2020/11/13/art_1229438201_58884370.html'},
- book:{label:'《宋元时期温州港口及其相关城市建设研究》',url:null},
- sediment:{label:'《瓯江口朔门港沉积环境演变与温州港城关系初探》',url:null},
- wreck:{label:'《一艘宋代沉船的千年“船”奇》',url:null},
- ou:{label:'瓯居海中｜一部瓯窑史：瓯海先民留下的陶器遗存（2022）',url:'https://mp.weixin.qq.com/s/8_msvsT0h498wu8hYnkFIw'}
+ book:{label:'褚子婧《宋元时期温州港口及其相关城市建设研究》，东南大学硕士学位论文',url:null},
+ sediment:{label:'韦鑫等《瓯江口朔门港沉积环境演变与温州港城关系初探》',url:null},
+ wreck:{label:'应忠彭《一艘宋代沉船的千年“船”奇》，《浙江日报》2026年5月22日第006版',url:'https://zjnews.zjol.com.cn/zjnews/202605/t20260522_31677706.shtml?mode=m2pc'},
+ painting:{label:'《江山胜览图》画作局部',url:null},
+ qiu:{label:'邱志诚《宋代温州市舶务设置时间考辨》，《浙江海洋学院学报（人文科学版）》2013年第30卷第6期，第5—8页',url:null},
+ yang:{label:'杨蟠《孤屿山》，载《孤屿志》卷三《诗》',url:null},
+ wei2025:{label:'Wei Xin等，Hydrodynamic processes and extreme events recognized from the sedimentary records at ancient Port Shuomen in the Oujiang River mouth, Southeast China，Marine Geology，2025，486：107562',url:'https://doi.org/10.1016/j.margeo.2025.107562'},
+ ou:{label:'温州博物馆《永嘉青瓷窑址专题调查成果喜人》',url:'https://www.wzmuseum.cn/Art/Art_85/Art_85_4021.aspx'},
+ ceramics:{label:'梁岩华、朱冠星《温州朔门古港遗址出土商品瓷浅析及相关问题探讨》，《故宫博物院院刊》2025年第7期',url:'https://www.dpm.org.cn/journal/372404.html'}
 };
 const SCENES=[
  {title:'循江而来',lead:'循着江水向东，山地与港城由此相连。',action:'启程',card:{title:'瓯江：山水之间的航运通道',text:'瓯江流经浙南山地，连接丽水、温州并汇入东海。温州港的兴衰也与河口泥沙、岸线变迁及港城建设有关。有关研究梳理了朔门港沉积环境演变与温州港城发展的关系。',note:'长卷里的航行路线用于串联五幕场景，不代表一条已考定的宋元航线。',sources:[SOURCES.river,SOURCES.sediment]},hotspots:[
-  {x:27,y:72,label:'瓯江水路',icon:'水',title:'山水连接港城',text:'瓯江下游连接山地、河口与东海。图中以地形、水系和河口分区呈现这一空间关系：从河流作用占优势的上段，经过河流与海洋作用的过渡区，走向海洋作用占优势的下段。',figure:'terrain',sources:[SOURCES.sediment]},
+  {x:27,y:72,label:'瓯江水路',icon:'水',title:'山水连接港城',text:'瓯江下游连接山地、河口与东海。图中以地形、水系和河口分区呈现这一空间关系：从河流作用占优势的上段，经过河流与海洋作用的过渡区，走向海洋作用占优势的下段。',figure:'terrain',sources:[SOURCES.sediment,SOURCES.wei2025]},
   {x:76,y:59,label:'港口与河口',icon:'港',title:'港口随水岸而变',text:'河口水深、泥沙淤积和岸线变化会影响船只停泊与港口空间。朔门港相关研究从沉积环境变化讨论了港城关系。',figure:'shoreline',sources:[SOURCES.sediment]}
  ]},
- {title:'临江入城',lead:'船只靠近江岸，水路与城中街巷相接。',action:'让船靠岸',card:{"title": "从《江山胜览图》到临江入城", "text": "本幕从原画中提取岸边行旅、轿舆队伍、临时摊位与沿街商铺，重新组织为可交互的临江街市。点击画面中的四个“画”字标记，可以对照原画局部与本幕对应区域。", "figure": "translation", "image": "江山胜览图-沿岸场景.png", "rect": [0, 0, 100, 100], "sources": [{"label": "图像：用户提供的《江山胜览图》局部；转译说明：本作创作设计", "url": null}]},hotspots:[
-  {"x": 83, "y": 57, "label": "沿岸入城", "icon": "画", "title": "从原画的岸边行旅到临江入城", "text": "原画中，舟船停在岸边，岸上分布着建筑、树木与行旅人物。本幕借鉴舟岸相接、人物沿路活动的组织方式，将其转译为船只靠岸、货物进入街市的连续场景。", "image": "江山胜览图-沿岸场景.png", "rect": [73, 43, 25, 48], "figure": "translation", "sources": [{"label": "图像：用户提供的《江山胜览图》局部；转译说明：本作创作设计", "url": null}]},
-  {"x": 83, "y": 24, "label": "迎亲转译", "icon": "画", "title": "从轿舆与行旅队伍到迎亲场景", "text": "原画局部可见轿舆、挑担与行旅队伍。本幕提取队伍沿街行进的构图与人物组合，创作了远处的迎亲场景，并加入锣鼓声与渐入动画。迎亲情节是本作的叙事设计。", "image": "江山胜览图-行旅队伍.png", "rect": [72, 15, 22, 22], "figure": "translation", "sources": [{"label": "图像：用户提供的《江山胜览图》局部；转译说明：本作创作设计", "url": null}]},
-  {"x": 49, "y": 58, "label": "临时摊位", "icon": "画", "title": "从简易凉棚到街边茶摊", "text": "原画局部以立柱、棚顶与牵绳搭起临时凉棚，棚下聚集人物。论文图5-11（e）将这一局部标为“临时摊位”。本幕借鉴棚架与人物围聚的形式，将其转译为前景茶摊，并加入叫卖声与人物活动。", "image": "江山胜览图-棚亭人物局部.png", "rect": [36, 50, 29, 24], "figure": "translation", "sources": [{"label": "图像：用户提供的《江山胜览图》局部；转译说明：本作创作设计", "url": null}, {"label": "褚子婧《宋元时期温州港口及其相关城市建设研究》，图5-11（e）“临时摊位”，第90页", "url": null}]},
-  {"x": 24, "y": 47, "label": "沿街商铺", "icon": "画", "title": "从画中街市到沿街商铺", "text": "原画局部呈现临街建筑、檐下空间以及行人、挑担者。本幕提取店铺沿街排列、人物在店前停留与穿行的关系，转译为左侧的商铺与街市活动；色彩、货物与动态人物由本作重新组织。", "image": "江山胜览图-街市人物局部.png", "rect": [10, 25, 34, 29], "figure": "translation", "sources": [{"label": "图像：用户提供的《江山胜览图》局部；转译说明：本作创作设计", "url": null}]},
-  {x:28,y:36,label:'港口管理',icon:'贸',title:'南宋温州的市舶管理',text:'市舶机构管理海外贸易，承担货物征税（抽解）、官府收购（博买）、相关货物存储、船舶查验与商船公凭发给，以及外商接待等事务。港口由此连接起停泊、贸易与城市管理。\n\n温州在南宋设有市舶务。关于初设时间，论文梳理了不同考证，并引邱志诚的研究提出建炎二年至四年（1128—1130）的判断。',note:'图示为市舶机构的建置时间与分布，画面中的热点位置仅作为交互入口，不代表市舶机构的实际建筑位置。',figure:'shibo',sources:[{label:'褚子婧《宋元时期温州港口及其相关城市建设研究》§4.2.1、§4.2.3，正文第54、60—62页',url:null},{label:'设立时间考辨：论文注141所引，邱志诚《宋代温州市舶务设置时间考辨》，浙江海洋学院学报（人文科学版），2013，30(6)：5—8',url:null}]}
+ {title:'临江入城',lead:'船只靠近江岸，水路与城中街巷相接。',action:'让船靠岸',card:{"title": "从《江山胜览图》到临江入城", "text": "本幕从原画中提取岸边行旅、轿舆队伍、临时摊位与沿街商铺，重新组织为可交互的临江街市。点击画面中的四个“画”字标记，可以对照原画局部与本幕对应区域。", "figure": "translation", "image": "江山胜览图-沿岸场景.png", "rect": [0, 0, 100, 100], "sources": [SOURCES.painting]},hotspots:[
+  {"x": 83, "y": 57, "label": "沿岸入城", "icon": "画", "title": "从原画的岸边行旅到临江入城", "text": "原画中，舟船停在岸边，岸上分布着建筑、树木与行旅人物。本幕借鉴舟岸相接、人物沿路活动的组织方式，将其转译为船只靠岸、货物进入街市的连续场景。", "image": "江山胜览图-沿岸场景.png", "rect": [73, 43, 25, 48], "figure": "translation", "sources": [SOURCES.painting]},
+  {"x": 83, "y": 24, "label": "迎亲转译", "icon": "画", "title": "从轿舆与行旅队伍到迎亲场景", "text": "原画局部可见轿舆、挑担与行旅队伍。本幕提取队伍沿街行进的构图与人物组合，创作了远处的迎亲场景，并加入锣鼓声与渐入动画。迎亲情节是本作的叙事设计。", "image": "江山胜览图-行旅队伍.png", "rect": [72, 15, 22, 22], "figure": "translation", "sources": [SOURCES.painting]},
+  {"x": 49, "y": 58, "label": "临时摊位", "icon": "画", "title": "从简易凉棚到街边茶摊", "text": "原画局部以立柱、棚顶与牵绳搭起临时凉棚，棚下聚集人物。本幕借鉴棚架与人物围聚的形式，将其转译为前景茶摊，并加入叫卖声与人物活动。", "image": "江山胜览图-棚亭人物局部.png", "rect": [36, 50, 29, 24], "figure": "translation", "sources": [SOURCES.painting]},
+  {"x": 24, "y": 47, "label": "沿街商铺", "icon": "画", "title": "从画中街市到沿街商铺", "text": "原画局部呈现临街建筑、檐下空间以及行人、挑担者。本幕提取店铺沿街排列、人物在店前停留与穿行的关系，转译为左侧的商铺与街市活动；色彩、货物与动态人物由本作重新组织。", "image": "江山胜览图-街市人物局部.png", "rect": [10, 25, 34, 29], "figure": "translation", "sources": [SOURCES.painting]},
+  {x:28,y:36,label:'港口管理',icon:'贸',title:'南宋温州的市舶管理',text:'市舶机构管理海外贸易，承担货物征税（抽解）、官府收购（博买）、相关货物存储、船舶查验与商船公凭发给，以及外商接待等事务。港口由此连接起停泊、贸易与城市管理。\n\n温州在南宋设有市舶务。邱志诚考证，其初设时间应在建炎二年至四年（1128—1130）之间。',note:'图示为市舶机构的建置时间与分布，画面中的热点位置仅作为交互入口，不代表市舶机构的实际建筑位置。',figure:'shibo',sources:[SOURCES.book,SOURCES.qiu]}
  ]},
  {title:'朔门集舟',lead:'船舶停靠江岸，货物经由码头装载。',action:'开始装卸',card:{title:'宋代船舶与朔门港的装载线索',text:'朔门港遗址发现宋代沉船及码头遗存。二号沉船现存船体残长约15.9米、宽约4.26米；整船约20米长、约6米宽属于研究推估。船体舱壁和分舱结构，为认识宋代木船建造与港口运输提供了实物线索。',note:'残存尺寸与复原推估分别标示；长卷中的船只不是沉船的精确复原。',sources:[SOURCES.port,SOURCES.book,SOURCES.wreck]},hotspots:[
   {"x": 33, "y": 59, "label": "城与港", "icon": "城", "title": "朔门古港位于古城北侧", "text": "拱辰门区域位于朔门古港遗址西端南侧，为古城北门拱辰门外。遗迹群包括宋元和明清时期的瓮城、出城道路、石砌建筑或院墙以及不同时期的码头。图中可对照瓮城、道路、7号码头、9号码头与木栈道的位置，理解港区与古城的空间联系。", "figure": "portLayout", "sources": [{"label": "褚子婧《宋元时期温州港口及其相关城市建设研究》§4.1，第47—48页，图4-2", "url": null}]},
-  {x:72,y:74,label:'码头设施',icon:'港',title:'码头见证停泊与装卸',text:'码头连接水路与陆路，供船舶停泊、货物装卸、旅客上下与补充给养。论文结合朔门古港遗址，讨论了石砌码头与栈桥式码头两种结构。\n\n9号码头采用石边土心结构，并以底部木桩、侧边横木适应滩涂软土环境；论文记述，其东侧栈桥式码头遗迹保留了7组等距桩基及横梁构件。木桩与横梁支承栈桥，使岸上道路能够向停泊船只延伸。',figure:'dock',sources:[{label:'褚子婧《宋元时期温州港口及其相关城市建设研究》§4.1.1“泊船码头”，第48—49页',url:null},{label:'论文注127所引：黄溍《永嘉重修海堤记》，载俞光编《温州古代经济史料汇编》，上海社会科学院出版社，2005：549',url:null}]}
+  {x:72,y:74,label:'码头设施',icon:'港',title:'码头见证停泊与装卸',text:'码头连接水路与陆路，供船舶停泊、货物装卸、旅客上下与补充给养。朔门古港遗址发现石砌码头与栈桥式码头两种结构。\n\n9号码头采用石边土心结构，并以底部木桩、侧边横木适应滩涂软土环境；其东侧栈桥式码头遗迹保留了7组等距桩基及横梁构件。木桩与横梁支承栈桥，使岸上道路能够向停泊船只延伸。',figure:'dock',sources:[{label:'褚子婧《宋元时期温州港口及其相关城市建设研究》§4.1.1“泊船码头”，第48—49页',url:null}]}
  ]},
  {title:'双塔引航',lead:'船行开阔江面，江心屿双塔渐渐显现。',action:'扬帆起航',card:{title:'江心屿双塔：江面上的方向标志',text:'江心屿位于瓯江之中，东西双塔是温州历史地标。地方资料记载，往来船只曾以双塔辨认温州方向。双塔为砖塔建筑，成为江面与城市之间醒目的视觉参照。',note:'“引航”指地标帮助辨认方位，不代表现代灯塔设备或主动导航。',sources:[SOURCES.towers,SOURCES.book]},hotspots:[
-  {"x": 31, "y": 43, "label": "东西双塔", "icon": "塔", "title": "江心双塔：江面上的参照", "text": "江心屿的东西双塔是瓯江江面上醒目的地标。论文将双塔列入具有导航作用的塔类建筑，并引用杨蟠诗句“塔灯相对影，夜夜照蛟龙”，讨论塔影与灯火对夜间航行的意义。\n\n左侧原画局部可见峰石、楼阁、塔影与舟船。本幕借鉴这种岛屿与船只相互映衬的构图，以双塔作为航行中的视觉焦点，将原画意象转译为江心屿场景。", "figure": "islandPainting", "sources": [{"label": "褚子婧《宋元时期温州港口及其相关城市建设研究》§2.2.1，第20页；杨蟠诗句据该论文引文", "url": null}]},
-  {"x": 56, "y": 64, "label": "辨认方向", "icon": "航", "title": "从海上标志到入江航路", "text": "从外海进入瓯江，船只需要借助可辨识的岛屿、山峰与塔影判断方向。论文梳理了天然地标、简易标识、官方航标船和塔类建筑等航行参照，并将江心屿双塔放在沿海航标体系中讨论。\n\n图2-3以海防图为底图标示瓯江入海口航线，可帮助理解外海、河口与府城之间的联系。岛屿与塔影帮助辨认方位，进入河口后的航行还与水道条件有关。", "note": "此图为论文作者依据清代海防底图绘制的航线示意，不是宋元时期的实测航道图。", "figure": "estuaryRoute", "sources": [{"label": "褚子婧《宋元时期温州港口及其相关城市建设研究》§2.2.1，第20—22页，图2-3", "url": null}]}
+  {"x": 31, "y": 43, "label": "东西双塔", "icon": "塔", "title": "江心双塔：江面上的参照", "text": "江心屿的东西双塔是瓯江江面上醒目的地标。杨蟠《孤屿山》有“塔灯相对影，夜夜照蛟龙”之句，写出塔灯与江面相映的景象。\n\n左侧原画局部可见峰石、楼阁、塔影与舟船。本幕借鉴这种岛屿与船只相互映衬的构图，以双塔作为航行中的视觉焦点，将原画意象转译为江心屿场景。", "figure": "islandPainting", "sources": [SOURCES.towers,SOURCES.yang,SOURCES.painting]},
+  {"x": 56, "y": 64, "label": "辨认方向", "icon": "航", "title": "从海上标志到入江航路", "text": "从外海进入瓯江，船只需要借助可辨识的岛屿、山峰与塔影判断方向。古代方志记录了岛屿、山峰等航行参照；江心屿双塔也曾帮助往来船只辨认温州方向。\n\n图2-3以海防图为底图标示瓯江入海口航线，可帮助理解外海、河口与府城之间的联系。岛屿与塔影帮助辨认方位，进入河口后的航行还与水道条件有关。", "note": "此图依据清代海防底图绘制，为航线示意，不是宋元时期的实测航道图。", "figure": "estuaryRoute", "sources": [{"label": "（永乐）《乐清县志》卷二《山川》；（光绪）《永嘉县志》卷首《海防图》", "url": null},{"label": "航线示意绘图：褚子婧《宋元时期温州港口及其相关城市建设研究》图2-3，第22页", "url": null},SOURCES.towers]}
  ]},
- {title:'一江通海',lead:'江道渐宽，船载器物由此走向更远的海路。',action:'驶向江海',card:{title:'瓯窑与龙泉青瓷：港口流通的器物线索',text:'温州本地瓯窑与龙泉窑青瓷是不同窑口。瓯窑在宋元时期持续发展；朔门古港出土的陶瓷遗存也包括龙泉窑产品。港口与内河水路为瓷器流通和海上贸易提供了交通条件。',note:'瓯窑和龙泉窑不可混称；长卷中的货物画面不对应某艘沉船的确切货单。',sources:[SOURCES.ou,SOURCES.port,SOURCES.maritime,SOURCES.book]},hotspots:[
-  {"x": 75, "y": 62, "label": "港口瓷器", "icon": "瓷", "title": "港口里的瓷器：多种窑口汇聚", "text": "朔门古港出土瓷器以龙泉窑系产品为主，同时包含瓯窑等其他窑口。不同产地的瓷器在港口汇聚，留下了商品流通与贸易往来的线索。\n\n龙泉窑青瓷从产区经内河水路运抵港口，再与沿海运输网络衔接。瓯江连接产地与温州港，使港口成为瓷器集散和转运的重要节点。", "sources": [{"label": "褚子婧《宋元时期温州港口及其相关城市建设研究》§2.3“实例：龙泉窑青瓷运输路线”，第29—31页", "url": null}]},
-  {x:25,y:78,label:'古今水路',icon:'江',title:'从内陆窑场到海上航路',text:'宋元时期，龙泉窑瓷器的一条运输通道沿龙泉溪进入瓯江，经青田等地运抵温州港。内陆窑场、沿江城镇与海港，由水路相互连接。图中运输路线为研究推测。',note:'古今水路：2024年，温州七里港至青田温溪港集装箱海河联运航线启航，为瓯江水路在当代的运输功能提供了实例。',figure:true,sources:[SOURCES.book,SOURCES.river]}
+ {title:'一江通海',lead:'江道渐宽，船载器物由此走向更远的海路。',action:'驶向江海',card:{title:'瓯窑与龙泉青瓷：港口流通的器物线索',text:'温州本地瓯窑与龙泉窑青瓷是不同窑口。瓯窑在宋元时期持续发展；朔门古港出土的陶瓷遗存也包括龙泉窑产品。港口与内河水路为瓷器流通和海上贸易提供了交通条件。',note:'瓯窑和龙泉窑不可混称；长卷中的货物画面不对应某艘沉船的确切货单。',sources:[SOURCES.ou,SOURCES.ceramics,SOURCES.port]},hotspots:[
+  {"x": 75, "y": 62, "label": "港口瓷器", "icon": "瓷", "title": "港口里的瓷器：多种窑口汇聚", "text": "朔门古港出土瓷器以龙泉窑系产品为主，同时包含瓯窑等其他窑口。不同产地的瓷器在港口汇聚，留下了商品流通与贸易往来的线索。\n\n龙泉窑青瓷从产区经内河水路运抵港口，再与沿海运输网络衔接。瓯江连接产地与温州港，使港口成为瓷器集散和转运的重要节点。", "sources": [SOURCES.ceramics,SOURCES.port]},
+  {x:25,y:78,label:'古今水路',icon:'江',title:'从内陆窑场到海上航路',text:'宋元时期，龙泉窑瓷器的一条运输通道沿龙泉溪进入瓯江，经青田等地运抵温州港。内陆窑场、沿江城镇与海港，由水路相互连接。图中运输路线为研究推测。',note:'古今水路：2024年，温州七里港至青田温溪港集装箱海河联运航线启航，为瓯江水路在当代的运输功能提供了实例。',figure:true,sources:[SOURCES.book,{label:'龙泉溪至瓯江路线史料：（光绪）《龙泉县志》卷十二《艺文》',url:null},SOURCES.river]}
  ]}
 ];
 const byId=id=>document.getElementById(id);
@@ -228,26 +231,26 @@ function openCard(card){state.lastFocus=document.activeElement;ui.modalKicker.te
   const figure=document.createElement('figure');figure.className='route-figure';
   const link=document.createElement('a');link.href=A+'heritage/图2-10-龙泉窑运输路线.png';link.target='_blank';link.rel='noopener';link.title='打开大图';
   const img=document.createElement('img');img.src=link.href;img.alt='图2-10 龙泉窑窑址、港址和三路运输路线推测';link.append(img);figure.append(link);
-  const caption=document.createElement('figcaption');caption.textContent='图 2-10 龙泉窑窑址、港址和三路运输路线推测⁸⁹（来源:自绘，底图为《中国古代地图历史地图集册》南宋时期）';figure.append(caption);ui.modalArt.append(figure);
-  const note=document.createElement('p');note.className='route-original-note';note.textContent='89 “窑址集中城市”参考《浙江省第三次全国文物普查新发现丛书 古窑址》（前言第一页）；“主要港口城市”参考森达也《宋元外销瓷的窑口与输出港口》（考古与文物, 2016(06): 59）；“浙东运河路线”参考黄纯艳《宋代运河的水情和航行》（史学月刊, 2016(06): 96）；“庆元至温州海上航线”参考《文史》第26辑第139页《宋代国内海道考》、《资治通鉴》卷267。';ui.modalArt.append(note);
+  const caption=document.createElement('figcaption');caption.textContent='龙泉窑窑址、港址和三路运输路线推测。绘图：褚子婧；底图：《中国古代地图历史地图集册》南宋时期。';figure.append(caption);ui.modalArt.append(figure);
+  const note=document.createElement('p');note.className='route-original-note';note.textContent='路线图所据文献：窑址分布据浙江省文物局编《浙江省第三次全国文物普查新发现丛书·古窑址》；港口分布据森达也《宋元外销瓷的窑口与输出港口》，《考古与文物》2016年第6期；浙东运河据黄纯艳《宋代运河的水情和航行》，《史学月刊》2016年第6期；庆元至温州海路据冯汉镭《宋代国内海道考》，《文史》第26辑，及《资治通鉴》卷267。';ui.modalArt.append(note);
   if(card.figure==='cityLife'){
    link.href=A+'heritage/江山胜览图-街市人物局部.png';img.src=link.href;img.alt='《江山胜览图》街市与人物局部';
    caption.textContent='《江山胜览图》局部：街市与人物。';
-   note.textContent='图像来源：用户提供的画作局部。点击图片可查看大图。';
+   note.textContent='图像：《江山胜览图》画作局部。点击图片可查看大图。';
   }
   if(card.figure==='dock'){
    link.href=A+'heritage/江山胜览图-泊船岸边.png';img.src=link.href;img.alt='《江山胜览图》泊船与岸边活动局部';
    caption.textContent='《江山胜览图》局部：泊船与岸边活动。';
-   note.textContent='图像来源：用户提供的画作局部。点击图片可查看大图。';
+   note.textContent='图像：《江山胜览图》画作局部。点击图片可查看大图。';
   }
   if(card.figure==='portLayout'){
    link.href=A+'heritage/图4-2-拱辰门区域.png';img.src=link.href;img.alt='温州朔门古港遗址拱辰门区域：瓮城、道路、码头和木栈道';
-   caption.textContent='图 4-2 温州朔门古港遗址拱辰门区域（来源：自绘，自摄）';
-   note.textContent='引自褚子婧《宋元时期温州港口及其相关城市建设研究》，第48页。点击图片可查看大图。';
+   caption.textContent='温州朔门古港遗址拱辰门区域。绘图与摄影：褚子婧。';
+   note.textContent='图像出处：褚子婧《宋元时期温州港口及其相关城市建设研究》图4-2，第48页。点击图片可查看大图。';
   }
   if(card.figure==='translation'){
    link.href=A+'heritage/'+card.image;img.src=link.href;img.alt=card.title+'：原画局部';
-   caption.textContent='原画局部 · 《江山胜览图》';note.textContent='图像来源：用户提供。点击原画可查看大图。';
+   caption.textContent='原画局部 · 《江山胜览图》';note.textContent='图像：《江山胜览图》画作局部。点击原画可查看大图。';
    const comparison=document.createElement('figure');comparison.className='translation-comparison';
    const frame=document.createElement('div');frame.className='translation-frame';
    const scene=document.createElement('img');scene.src=A+assets.bg2;scene.alt='第二幕临江入城对应区域';frame.append(scene);
@@ -258,24 +261,24 @@ function openCard(card){state.lastFocus=document.activeElement;ui.modalKicker.te
   if(card.figure==='islandPainting'){
    link.href=A+'heritage/江山胜览图-岛屿塔影.png';img.src=link.href;img.alt='《江山胜览图》局部中的岛屿、塔影与舟船';
    caption.textContent='《江山胜览图》局部：岛屿、塔影与舟船。';
-   note.textContent='图像来源：用户提供的画作局部。点击图片可查看大图。';
+   note.textContent='图像：《江山胜览图》画作局部。点击图片可查看大图。';
   }
   if(card.figure==='estuaryRoute'){
    link.href=A+'heritage/图2-3-瓯江入海口航线.png';img.src=link.href;img.alt='图2-3 瓯江入海口航线';
-   caption.textContent='图 2-3 瓯江入海口航线（来源：自绘，底图为（光绪）《永嘉县志》卷首诸图海防图）';
-   note.textContent='引自褚子婧《宋元时期温州港口及其相关城市建设研究》，第22页。点击图片可查看大图。';
+   caption.textContent='瓯江入海口航线示意。绘图：褚子婧；底图：（光绪）《永嘉县志》卷首《海防图》。';
+   note.textContent='图像出处：褚子婧《宋元时期温州港口及其相关城市建设研究》图2-3，第22页。点击图片可查看大图。';
   }
   if(card.figure==='shibo'){
    link.href=A+'heritage/图4-9-市舶司建设时间及分布.png';img.src=link.href;img.alt='图4-9 宋元时期市舶司建设时间及分布';
-   caption.textContent='图 4-9 宋元时期市舶司建设时间及分布（来源：自绘，底图来自《中国古代地图历史地图集册》）';
-   note.textContent='引自褚子婧《宋元时期温州港口及其相关城市建设研究》，第55页（PDF第64页）。点击图片可查看大图。';
+   caption.textContent='宋元时期市舶机构建设时间及分布。绘图：褚子婧；底图：《中国古代地图历史地图集册》。';
+   note.textContent='绘图：褚子婧《宋元时期温州港口及其相关城市建设研究》图4-9，第55页。点击图片可查看大图。';
   }
   if(card.figure==='terrain'||card.figure==='shoreline'){
    const terrain=card.figure==='terrain';
    link.href=A+'heritage/'+(terrain?'图1a-瓯江口地貌.png':'图1b-朔门港岸线.png');img.src=link.href;
    img.alt=terrain?'原图1（a）：瓯江口地貌环境及本研究现代表层样品分布':'原图1（b）：朔门古港发掘区域和钻孔位置';
-   caption.textContent='图 1 瓯江下游地貌及表层样采样点和钻孔分布（节选'+(terrain?'a':'b')+'）。原图注：'+(terrain?'(a) 瓯江口地貌环境及本研究现代表层样品分布[21]，河口分区为河流作用占优势的河口上段，河流与海洋优势过渡的河口中段，以及海洋作用占优势的河口下段。':'(b) 朔门古港发掘区域和钻孔位置。');
-   note.textContent=terrain?'原图注所引文献 [21]：Wei X, Liang Y H, Liu T H, et al. Hydrodynamic processes and extreme events recognized from the sedimentary records at ancient Port Shuomen in the Oujiang River mouth, Southeast China [J]. Marine Geology, 2025, 486: 107562.':'图像载于韦鑫等《瓯江口朔门港沉积环境演变与温州港城关系初探》图1（b），PDF第4页。原图注未另列此分图的底图来源。';
+   caption.textContent='瓯江下游地貌及表层样采样点和钻孔分布，韦鑫等图1（'+(terrain?'a':'b')+'）'+(terrain?'：瓯江口地貌与河口分区。':'：朔门古港发掘区域和钻孔位置。');
+   note.textContent=terrain?'地貌底图所据研究：Wei Xin等，Hydrodynamic processes and extreme events recognized from the sedimentary records at ancient Port Shuomen in the Oujiang River mouth, Southeast China，Marine Geology，2025，486：107562。':'图像：韦鑫等《瓯江口朔门港沉积环境演变与温州港城关系初探》图1（b）。';
   }
 
  }else{const label=document.createElement('span');label.textContent='瓯江行旅';ui.modalArt.append(label);}
