@@ -14,7 +14,8 @@ const SOURCES={
  yang:{label:'杨蟠《孤屿山》，载《孤屿志》卷三《诗》',url:null},
  wei2025:{label:'Wei Xin等，Hydrodynamic processes and extreme events recognized from the sedimentary records at ancient Port Shuomen in the Oujiang River mouth, Southeast China，Marine Geology，2025，486：107562',url:'https://doi.org/10.1016/j.margeo.2025.107562'},
  ou:{label:'温州博物馆《永嘉青瓷窑址专题调查成果喜人》',url:'https://www.wzmuseum.cn/Art/Art_85/Art_85_4021.aspx'},
- ceramics:{label:'梁岩华、朱冠星《温州朔门古港遗址出土商品瓷浅析及相关问题探讨》，《故宫博物院院刊》2025年第7期',url:'https://www.dpm.org.cn/journal/372404.html'}
+ ceramics:{label:'梁岩华、朱冠星《温州朔门古港遗址出土商品瓷浅析及相关问题探讨》，《故宫博物院院刊》2025年第7期',url:'https://www.dpm.org.cn/journal/372404.html'},
+ ceramicsPhoto:{label:'新华社《实证千年商港 再现“海丝”繁华》，2023年3月30日；朔门古港遗址出土陶瓷器照片，翁忻旸摄',url:'https://www.xinhuanet.com/2023-03/30/c_1129479017.htm'}
 };
 const SCENES=[
  {title:'循江而来',lead:'循着江水向东，山地与港城由此相连。',action:'启程',card:{title:'瓯江：山水之间的航运通道',text:'瓯江流经浙南山地，连接丽水、温州并汇入东海。温州港的兴衰也与河口泥沙、岸线变迁及港城建设有关。有关研究梳理了朔门港沉积环境演变与温州港城发展的关系。',note:'长卷里的航行路线用于串联五幕场景，不代表一条已考定的宋元航线。',sources:[SOURCES.river,SOURCES.sediment]},hotspots:[
@@ -37,7 +38,7 @@ const SCENES=[
   {"x": 56, "y": 64, "label": "辨认方向", "icon": "航", "title": "从海上标志到入江航路", "text": "从外海进入瓯江，船只需要借助可辨识的岛屿、山峰与塔影判断方向。古代方志记录了岛屿、山峰等航行参照；江心屿双塔也曾帮助往来船只辨认温州方向。\n\n图2-3以海防图为底图标示瓯江入海口航线，可帮助理解外海、河口与府城之间的联系。岛屿与塔影帮助辨认方位，进入河口后的航行还与水道条件有关。", "note": "此图依据清代海防底图绘制，为航线示意，不是宋元时期的实测航道图。", "figure": "estuaryRoute", "sources": [{"label": "（永乐）《乐清县志》卷二《山川》；（光绪）《永嘉县志》卷首《海防图》", "url": null},{"label": "航线示意绘图：褚子婧《宋元时期温州港口及其相关城市建设研究》图2-3，第22页", "url": null},SOURCES.towers]}
  ]},
  {title:'一江通海',lead:'江道渐宽，船载器物由此走向更远的海路。',action:'驶向江海',card:{title:'瓯窑与龙泉青瓷：港口流通的器物线索',text:'温州本地瓯窑与龙泉窑青瓷是不同窑口。瓯窑在宋元时期持续发展；朔门古港出土的陶瓷遗存也包括龙泉窑产品。港口与内河水路为瓷器流通和海上贸易提供了交通条件。',note:'瓯窑和龙泉窑不可混称；长卷中的货物画面不对应某艘沉船的确切货单。',sources:[SOURCES.ou,SOURCES.ceramics,SOURCES.port]},hotspots:[
-  {"x": 75, "y": 62, "label": "港口瓷器", "icon": "瓷", "title": "港口里的瓷器：多种窑口汇聚", "text": "朔门古港出土瓷器以龙泉窑系产品为主，同时包含瓯窑等其他窑口。不同产地的瓷器在港口汇聚，留下了商品流通与贸易往来的线索。\n\n龙泉窑青瓷从产区经内河水路运抵港口，再与沿海运输网络衔接。瓯江连接产地与温州港，使港口成为瓷器集散和转运的重要节点。", "sources": [SOURCES.ceramics,SOURCES.port]},
+  {"x": 75, "y": 62, "label": "港口瓷器", "icon": "瓷", "title": "港口里的瓷器：多种窑口汇聚", "text": "朔门古港出土瓷器以龙泉窑系产品为主，同时包含瓯窑等其他窑口。不同产地的瓷器在港口汇聚，留下了商品流通与贸易往来的线索。", "figure": "ceramics", "sources": [SOURCES.ceramics,SOURCES.port,SOURCES.ceramicsPhoto]},
   {x:25,y:78,label:'古今水路',icon:'江',title:'从内陆窑场到海上航路',text:'宋元时期，龙泉窑瓷器的一条运输通道沿龙泉溪进入瓯江，经青田等地运抵温州港。内陆窑场、沿江城镇与海港，由水路相互连接。图中运输路线为研究推测。',note:'古今水路：2024年，温州七里港至青田温溪港集装箱海河联运航线启航，为瓯江水路在当代的运输功能提供了实例。',figure:true,sources:[SOURCES.book,{label:'图示底图：《中国古代地图历史地图集册》南宋时期',url:null},{label:'（光绪）《龙泉县志》卷十二《艺文》',url:null},{label:'浙江省文物局编《浙江省第三次全国文物普查新发现丛书·古窑址》',url:null},{label:'森达也《宋元外销瓷的窑口与输出港口》，《考古与文物》2016年第6期',url:null},{label:'黄纯艳《宋代运河的水情和航行》，《史学月刊》2016年第6期',url:null},{label:'冯汉镭《宋代国内海道考》，《文史》第26辑',url:null},{label:'《资治通鉴》卷267',url:null},SOURCES.river]}
  ]}
 ];
@@ -228,7 +229,7 @@ function openCard(card){state.lastFocus=document.activeElement;ui.modalKicker.te
  ui.modalArt.replaceChildren();
  if(card.figure){
   ui.modalArt.style.backgroundImage='none';
-  const figure=document.createElement('figure');figure.className='route-figure';
+  const figure=document.createElement('figure');figure.className='route-figure'+(card.figure==='shibo'||card.figure===true?' route-figure--tall':'');
   const link=document.createElement('a');link.href=A+'heritage/图2-10-龙泉窑运输路线.png';link.target='_blank';link.rel='noopener';link.title='打开大图';
   const img=document.createElement('img');img.src=link.href;img.alt='图2-10 龙泉窑窑址、港址和三路运输路线推测';link.append(img);figure.append(link);
   const caption=document.createElement('figcaption');caption.textContent='龙泉窑窑址、港址和三路运输路线推测';figure.append(caption);ui.modalArt.append(figure);
@@ -265,6 +266,10 @@ function openCard(card){state.lastFocus=document.activeElement;ui.modalKicker.te
   if(card.figure==='shibo'){
    link.href=A+'heritage/图4-9-市舶司建设时间及分布.png';img.src=link.href;img.alt='图4-9 宋元时期市舶司建设时间及分布';
    caption.textContent='宋元时期市舶机构建设时间及分布';
+  }
+  if(card.figure==='ceramics'){
+   link.href='https://www.xinhuanet.com/2023-03/30/1129479017_16801628544001n.jpg';img.src=link.href;img.alt='朔门古港遗址出土陶瓷器';
+   caption.textContent='朔门古港遗址出土陶瓷器';
   }
   if(card.figure==='terrain'||card.figure==='shoreline'){
    const terrain=card.figure==='terrain';

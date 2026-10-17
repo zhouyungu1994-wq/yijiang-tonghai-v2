@@ -47,7 +47,7 @@
 
 .has-route-figure{width:min(1100px,100%);grid-template-columns:1.15fr 1fr}
 .has-route-figure .knowledge-art{display:block;background:#f7f1e4;padding:88px 25px 25px;color:#384b49;text-shadow:none;letter-spacing:normal;min-height:0}
-.route-figure{margin:0}.route-figure img{display:block;max-width:100%;width:auto;max-height:54vh;object-fit:contain;margin:auto}.route-figure figcaption{font-size:12px;line-height:1.7;margin-top:12px}.has-route-figure .source-list{font-size:12px;line-height:1.7}
+.route-figure{margin:0}.route-figure>a{display:flex;justify-content:center;width:100%}.route-figure img{display:block;max-width:100%;width:auto;max-height:54vh;object-fit:contain;margin:0 auto}.route-figure--tall img{max-height:68vh}.route-figure figcaption{font-size:12px;line-height:1.7;margin-top:12px;text-align:center}.has-route-figure .source-list{font-size:12px;line-height:1.7}
 .source-list{line-height:1.7}.source-list .source-heading{font-size:12px;font-weight:600;color:#796d59}.source-list a,.source-list span{font-size:12px;line-height:1.7}.source-list span{color:#54716c}
 @media(max-width:850px){.has-route-figure{grid-template-columns:1fr}.has-route-figure .knowledge-art{padding:22px}.route-figure img{max-height:50vh}}
 
