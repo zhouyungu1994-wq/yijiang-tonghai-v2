@@ -1,6 +1,6 @@
 import {createSceneUI} from './scene-ui.js?v=20261016-4';
 import {smooth,lerp,cargoPose,portPose} from './motion.js?v=20261012-11';
-import {ShipInspection} from './ship-inspection.js?v=20261014-9';
+import {ShipInspection} from './ship-inspection.js?v=20261017-4';
 const A='assets/';
 const SOURCES={
  river:{label:'浙江省交通运输厅｜温州—丽水海河联运启航（2024）',url:'https://jtyst.zj.gov.cn/art/2024/12/27/art_1229304975_59039943.html'},
@@ -23,8 +23,7 @@ const SCENES=[
   {x:28,y:36,label:'港口管理',icon:'贸',title:'南宋温州的市舶管理',text:'市舶机构管理海外贸易，承担货物征税（抽解）、官府收购（博买）、相关货物存储、船舶查验与商船公凭发给，以及外商接待等事务。港口由此连接起停泊、贸易与城市管理。\n\n温州在南宋设有市舶务。关于初设时间，论文梳理了不同考证，并引邱志诚的研究提出建炎二年至四年（1128—1130）的判断。',note:'图示为市舶机构的建置时间与分布，画面中的热点位置仅作为交互入口，不代表市舶机构的实际建筑位置。',figure:'shibo',sources:[{label:'褚子婧《宋元时期温州港口及其相关城市建设研究》§4.2.1、§4.2.3，正文第54、60—62页',url:null},{label:'设立时间考辨：论文注141所引，邱志诚《宋代温州市舶务设置时间考辨》，浙江海洋学院学报（人文科学版），2013，30(6)：5—8',url:null}]}
  ]},
  {title:'朔门集舟',lead:'船舶停靠江岸，货物经由码头装载。',action:'开始装卸',card:{title:'宋代船舶与朔门港的装载线索',text:'朔门港遗址发现宋代沉船及码头遗存。二号沉船现存船体残长约15.9米、宽约4.26米；整船约20米长、约6米宽属于研究推估。船体舱壁和分舱结构，为认识宋代木船建造与港口运输提供了实物线索。',note:'残存尺寸与复原推估分别标示；长卷中的船只不是沉船的精确复原。',sources:[SOURCES.port,SOURCES.book,SOURCES.wreck]},hotspots:[
-  {x:47,y:54,label:'沉船船体',icon:'舟',title:'船体、船艏与分舱',text:'研究资料据现存船体推估二号沉船原长约20米、宽约6米，并记录了约七个隔舱等结构。尖艏、船体线形、排水孔和舱壁共同反映船的形制与建造方式；尺寸推估应与现存残长约15.9米区分。',sources:[SOURCES.book,SOURCES.wreck]},
-  {x:72,y:74,label:'码头设施',icon:'港',title:'码头见证停泊与装卸',text:'朔门古港考古发现宋代码头及江岸设施。木桩、铺板和岸线结构等材料，为研究船只停靠和港口建设提供线索。',sources:[SOURCES.port,SOURCES.book]}
+  {x:72,y:74,label:'码头设施',icon:'港',title:'码头见证停泊与装卸',text:'码头连接水路与陆路，供船舶停泊、货物装卸、旅客上下与补充给养。论文结合朔门古港遗址，讨论了石砌码头与栈桥式码头两种结构。\n\n9号码头采用石边土心结构，并以底部木桩、侧边横木适应滩涂软土环境；论文记述，其东侧栈桥式码头遗迹保留了7组等距桩基及横梁构件。木桩与横梁支承栈桥，使岸上道路能够向停泊船只延伸。',figure:'dock',sources:[{label:'褚子婧《宋元时期温州港口及其相关城市建设研究》§4.1.1“泊船码头”，第48—49页',url:null},{label:'论文注127所引：黄溍《永嘉重修海堤记》，载俞光编《温州古代经济史料汇编》，上海社会科学院出版社，2005：549',url:null}]}
  ]},
  {title:'双塔引航',lead:'船行开阔江面，江心屿双塔渐渐显现。',action:'扬帆起航',card:{title:'江心屿双塔：江面上的方向标志',text:'江心屿位于瓯江之中，东西双塔是温州历史地标。地方资料记载，往来船只曾以双塔辨认温州方向。双塔为砖塔建筑，成为江面与城市之间醒目的视觉参照。',note:'“引航”指地标帮助辨认方位，不代表现代灯塔设备或主动导航。',sources:[SOURCES.towers,SOURCES.book]},hotspots:[
   {x:31,y:43,label:'东西双塔',icon:'塔',title:'江心屿的两座砖塔',text:'江心屿双塔隔江相望，是温州城市景观的重要历史地标。地方文献记载了双塔形制与高度。',sources:[SOURCES.towers,SOURCES.book]},
@@ -230,6 +229,11 @@ function openCard(card){state.lastFocus=document.activeElement;ui.modalKicker.te
   if(card.figure==='cityLife'){
    link.href=A+'heritage/江山胜览图-街市人物局部.png';img.src=link.href;img.alt='《江山胜览图》街市与人物局部';
    caption.textContent='《江山胜览图》局部：街市与人物。';
+   note.textContent='图像来源：用户提供的画作局部。点击图片可查看大图。';
+  }
+  if(card.figure==='dock'){
+   link.href=A+'heritage/江山胜览图-泊船岸边.png';img.src=link.href;img.alt='《江山胜览图》泊船与岸边活动局部';
+   caption.textContent='《江山胜览图》局部：泊船与岸边活动。';
    note.textContent='图像来源：用户提供的画作局部。点击图片可查看大图。';
   }
   if(card.figure==='shibo'){
