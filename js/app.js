@@ -19,8 +19,8 @@ const SCENES=[
   {x:76,y:59,label:'港口与河口',icon:'港',title:'港口随水岸而变',text:'河口水深、泥沙淤积和岸线变化会影响船只停泊与港口空间。朔门港相关研究从沉积环境变化讨论了港城关系。',figure:'shoreline',sources:[SOURCES.sediment]}
  ]},
  {title:'临江入城',lead:'船只靠近江岸，水路与城中街巷相接。',action:'让船靠岸',card:{title:'从江岸入城：港口连接城市生活',text:'朔门古港遗址位于温州古城北侧、瓯江南岸。城门、瓮城、江岸与码头等遗存，呈现宋元以来港区和城市空间之间的联系。南宋温州设有市舶务，参与海外贸易管理，其初设时间有不同考证。',note:'',sources:[SOURCES.port,SOURCES.city,SOURCES.book]},hotspots:[
-  {x:66,y:43,label:'城与港',icon:'城',title:'朔门古港位于古城北侧',text:'朔门古港遗址的城门、瓮城、江岸及码头遗迹，为观察温州港区与城市北部空间关系提供了考古材料。',sources:[SOURCES.port,SOURCES.city]},
-  {x:28,y:36,label:'港口管理',icon:'贸',title:'南宋温州的市舶管理',text:'市舶机构管理海外贸易，承担货物征税（抽解）、官府收购（博买）、相关货物存储、船舶查验与商船公凭发给，以及外商接待等事务。港口由此连接起停泊、贸易与城市管理。\n\n温州在南宋设有市舶务。关于初设时间，论文梳理了不同考证，并引邱志诚的研究提出建炎二年至四年（1128—1130）的判断，不能简单确定为绍兴二年（1132）。',note:'上述职能依据论文对宋元市舶制度的归纳。图示为市舶机构的建置时间与分布，画面中的热点位置仅作为交互入口，不代表市舶机构的实际建筑位置。',figure:'shibo',sources:[{label:'褚子婧《宋元时期温州港口及其相关城市建设研究》§4.2.1、§4.2.3，正文第54、60—62页（PDF第63、69—71页）',url:null},{label:'设立时间考辨：论文注141所引，邱志诚《宋代温州市舶务设置时间考辨》，浙江海洋学院学报（人文科学版），2013，30(6)：5—8（据论文转引）',url:null}]}
+  {x:66,y:43,label:'城与港',icon:'城',title:'朔门古港位于古城北侧',text:'朔门古港遗址的城门、瓮城、江岸及码头遗迹，为观察温州港区与城市北部空间关系提供了考古材料。',figure:'cityLife',sources:[SOURCES.port,SOURCES.city]},
+  {x:28,y:36,label:'港口管理',icon:'贸',title:'南宋温州的市舶管理',text:'市舶机构管理海外贸易，承担货物征税（抽解）、官府收购（博买）、相关货物存储、船舶查验与商船公凭发给，以及外商接待等事务。港口由此连接起停泊、贸易与城市管理。\n\n温州在南宋设有市舶务。关于初设时间，论文梳理了不同考证，并引邱志诚的研究提出建炎二年至四年（1128—1130）的判断。',note:'图示为市舶机构的建置时间与分布，画面中的热点位置仅作为交互入口，不代表市舶机构的实际建筑位置。',figure:'shibo',sources:[{label:'褚子婧《宋元时期温州港口及其相关城市建设研究》§4.2.1、§4.2.3，正文第54、60—62页',url:null},{label:'设立时间考辨：论文注141所引，邱志诚《宋代温州市舶务设置时间考辨》，浙江海洋学院学报（人文科学版），2013，30(6)：5—8',url:null}]}
  ]},
  {title:'朔门集舟',lead:'船舶停靠江岸，货物经由码头装载。',action:'开始装卸',card:{title:'宋代船舶与朔门港的装载线索',text:'朔门港遗址发现宋代沉船及码头遗存。二号沉船现存船体残长约15.9米、宽约4.26米；整船约20米长、约6米宽属于研究推估。船体舱壁和分舱结构，为认识宋代木船建造与港口运输提供了实物线索。',note:'残存尺寸与复原推估分别标示；长卷中的船只不是沉船的精确复原。',sources:[SOURCES.port,SOURCES.book,SOURCES.wreck]},hotspots:[
   {x:47,y:54,label:'沉船船体',icon:'舟',title:'船体、船艏与分舱',text:'研究资料据现存船体推估二号沉船原长约20米、宽约6米，并记录了约七个隔舱等结构。尖艏、船体线形、排水孔和舱壁共同反映船的形制与建造方式；尺寸推估应与现存残长约15.9米区分。',sources:[SOURCES.book,SOURCES.wreck]},
@@ -227,10 +227,15 @@ function openCard(card){state.lastFocus=document.activeElement;ui.modalKicker.te
   const img=document.createElement('img');img.src=link.href;img.alt='图2-10 龙泉窑窑址、港址和三路运输路线推测';link.append(img);figure.append(link);
   const caption=document.createElement('figcaption');caption.textContent='图 2-10 龙泉窑窑址、港址和三路运输路线推测⁸⁹（来源:自绘，底图为《中国古代地图历史地图集册》南宋时期）';figure.append(caption);ui.modalArt.append(figure);
   const note=document.createElement('p');note.className='route-original-note';note.textContent='89 “窑址集中城市”参考《浙江省第三次全国文物普查新发现丛书 古窑址》（前言第一页）；“主要港口城市”参考森达也《宋元外销瓷的窑口与输出港口》（考古与文物, 2016(06): 59）；“浙东运河路线”参考黄纯艳《宋代运河的水情和航行》（史学月刊, 2016(06): 96）；“庆元至温州海上航线”参考《文史》第26辑第139页《宋代国内海道考》、《资治通鉴》卷267。';ui.modalArt.append(note);
+  if(card.figure==='cityLife'){
+   link.href=A+'heritage/江山胜览图-街市人物局部.png';img.src=link.href;img.alt='《江山胜览图》街市与人物局部';
+   caption.textContent='《江山胜览图》局部：街市与人物。';
+   note.textContent='图像来源：用户提供的画作局部。点击图片可查看大图。';
+  }
   if(card.figure==='shibo'){
    link.href=A+'heritage/图4-9-市舶司建设时间及分布.png';img.src=link.href;img.alt='图4-9 宋元时期市舶司建设时间及分布';
    caption.textContent='图 4-9 宋元时期市舶司建设时间及分布（来源：自绘，底图来自《中国古代地图历史地图集册》）';
-   note.textContent='引自褚子婧《宋元时期温州港口及其相关城市建设研究》，第55页（PDF第64页）。以上来源保留论文原标注，“自绘”指论文作者绘制。点击图片可查看大图。';
+   note.textContent='引自褚子婧《宋元时期温州港口及其相关城市建设研究》，第55页（PDF第64页）。点击图片可查看大图。';
   }
   if(card.figure==='terrain'||card.figure==='shoreline'){
    const terrain=card.figure==='terrain';
